@@ -55,7 +55,7 @@ Layer 4 — **FMCv on your own Debian/KVM host** — is the "I want to own the w
 
 ## Comparison matrix
 
-<div style="overflow-x: auto;" markdown>
+<div class="matrix-wrap">
 <table class="mgmt-matrix">
   <thead>
     <tr>
@@ -119,6 +119,7 @@ Layer 4 — **FMCv on your own Debian/KVM host** — is the "I want to own the w
   </tbody>
 </table>
 </div>
+<p class="matrix-caption"><b>Highlighted column</b> = the path this lab is currently on (Layer 1 · FDM only). It moves as the journey progresses.</p>
 
 ## Plan of record — the journey
 

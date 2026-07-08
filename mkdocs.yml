@@ -56,6 +56,9 @@ markdown_extensions:
   - toc:
       permalink: true
 
+extra_css:
+  - stylesheets/matrix.css
+
 nav:
   - Overview: index.md
   - Bill of materials: bill-of-materials.md

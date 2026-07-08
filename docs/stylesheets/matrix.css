@@ -1,0 +1,164 @@
+/* ---------------------------------------------------------------
+   Management path comparison matrix — table styling
+   Used on the "Choosing your management path" chapter.
+   Highlights the CURRENT path so the reader sees at a glance where
+   the lab is in the journey. Update .col-fdm to .col-fdm-scc, etc,
+   as the journey progresses to shift the highlighted column.
+   --------------------------------------------------------------- */
+
+.matrix-wrap {
+  margin: 1.5rem 0 2rem;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  overflow-x: auto;
+  background: var(--md-default-bg-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.mgmt-matrix {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--md-default-fg-color);
+  background: var(--md-default-bg-color);
+}
+
+/* ---- Header row ---- */
+
+.mgmt-matrix thead th {
+  background: var(--md-code-bg-color);
+  color: var(--md-default-fg-color);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.005em;
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--md-default-fg-color--lighter);
+  white-space: nowrap;
+}
+
+.mgmt-matrix thead th.col-q {
+  font-family: var(--md-code-font-family, "Roboto Mono", ui-monospace, monospace);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--md-default-fg-color--light);
+  font-weight: 700;
+  min-width: 220px;
+  width: 240px;
+}
+
+/* ---- Current-path column highlight (FDM only) ----
+   Change these selectors to .col-fdm-scc / .col-cdfmc / .col-fmcv
+   as the journey progresses; that shifts the visual "you are here"
+   marker to the new column with no other edits. */
+
+.mgmt-matrix .col-fdm {
+  background: rgba(3, 155, 229, 0.055);
+}
+.mgmt-matrix thead th.col-fdm {
+  background: rgba(3, 155, 229, 0.14);
+  border-bottom: 2px solid #039be5;
+  color: #039be5;
+  position: relative;
+}
+.mgmt-matrix thead th.col-fdm::after {
+  content: "✅  current";
+  display: block;
+  font-family: var(--md-code-font-family, "Roboto Mono", monospace);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  color: #039be5;
+  opacity: 0.9;
+}
+
+/* Slate (dark) mode — soften the highlight so it doesn't blow out */
+[data-md-color-scheme="slate"] .mgmt-matrix .col-fdm {
+  background: rgba(56, 182, 232, 0.08);
+}
+[data-md-color-scheme="slate"] .mgmt-matrix thead th.col-fdm {
+  background: rgba(56, 182, 232, 0.18);
+  border-bottom-color: #38b6e8;
+  color: #38b6e8;
+}
+[data-md-color-scheme="slate"] .mgmt-matrix thead th.col-fdm::after {
+  color: #38b6e8;
+}
+
+/* ---- Body rows ---- */
+
+.mgmt-matrix tbody td {
+  padding: 14px 16px;
+  vertical-align: top;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  color: var(--md-default-fg-color);
+}
+
+/* Question column (row headers) — code-tinted background + bold */
+.mgmt-matrix tbody td.col-q {
+  background: var(--md-code-bg-color);
+  font-family: var(--md-code-font-family, "Roboto Mono", ui-monospace, monospace);
+  font-size: 12.5px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--md-default-fg-color);
+  border-right: 1px solid var(--md-default-fg-color--lighter);
+  vertical-align: middle;
+  letter-spacing: -0.005em;
+}
+.mgmt-matrix tbody td.col-q strong {
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+}
+
+/* Zebra striping on the non-highlighted, non-header cells */
+.mgmt-matrix tbody tr:nth-child(even) td:not(.col-q):not(.col-fdm) {
+  background: rgba(0, 0, 0, 0.02);
+}
+[data-md-color-scheme="slate"] .mgmt-matrix tbody tr:nth-child(even) td:not(.col-q):not(.col-fdm) {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Give current-column cells a slight border to lift them off the table */
+.mgmt-matrix tbody tr:not(:first-child) td.col-fdm {
+  border-top: 1px solid rgba(3, 155, 229, 0.18);
+}
+[data-md-color-scheme="slate"] .mgmt-matrix tbody tr:not(:first-child) td.col-fdm {
+  border-top-color: rgba(56, 182, 232, 0.18);
+}
+
+/* ---- Optional caption below the table ---- */
+
+.matrix-caption {
+  font-family: var(--md-code-font-family, "Roboto Mono", ui-monospace, monospace);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--md-default-fg-color--light);
+  margin: -1rem 0 2rem;
+  padding: 0 4px;
+}
+.matrix-caption b {
+  color: #039be5;
+  font-weight: 700;
+}
+[data-md-color-scheme="slate"] .matrix-caption b {
+  color: #38b6e8;
+}
+
+/* ---- Small screens: reinforce the scroll hint ---- */
+
+@media (max-width: 720px) {
+  .matrix-wrap {
+    border-radius: 6px;
+  }
+  .mgmt-matrix { font-size: 13px; }
+  .mgmt-matrix thead th,
+  .mgmt-matrix tbody td { padding: 11px 12px; }
+  .mgmt-matrix thead th.col-q { min-width: 180px; width: 200px; }
+}
