@@ -123,7 +123,7 @@ Layer 4 — **FMCv on your own Debian/KVM host** — is the "I want to own the w
 
 ## Plan of record — the journey
 
-The lab is going to walk every layer above Layer 0, in order, so you (and any customer you're mirroring) sees the full lifecycle end-to-end:
+The lab is going to walk every layer above Layer 0, in order, so you (and any customer you're mirroring) see the full lifecycle end-to-end:
 
 - [x] **Step 1 — FDM standalone.** ✅ **Done.** This is where you are right now. FDM is authoritative, no cloud attachments. Continues through [Ch 6 — FDM baseline](fdm-baseline.md), [Ch 7 — Security policies](security-policies.md), [Ch 8 — Talos intel](talos-intel.md).
 - [ ] **Step 2 — Onboard to existing SCC tenant.** ⏭️ **Next.** Register `fw1210ce` to the Salient SCC tenant. Config stays on-box; SCC gets an inventory entry and a change log. See [Ch 9 — SCC onboarding](scc-onboarding.md).
@@ -141,7 +141,7 @@ You can skip Step 3 and stay on Step 2 forever — that's a legitimate end state
 - **SCC (Step 2) does not lock FDM.** This is the friendly middle ground — you can un-register the box from SCC without touching the running config. It's cheap to try and cheap to back out of.
 - **90-day evaluation licensing works for all four layers.** You do not need to have your Smart Account wired up to complete the journey; you just need it wired up before day 90 or the box's advanced features (URL filtering, malware, IPS updates) start declining renewal.
 - **Console (Layer 0) never goes away.** Even at Step 3, USB-C `/dev/ttyACM0` still gets you a shell. Every layer above it can fail without stranding you — this is why we invested in ConsolePi first.
-- **Factory reset is the escape hatch, and it's clean.** `configure manager local` + `reboot` (or a full image reinstall from ROMMON if the config layer is corrupt) puts the box back to Layer 1 with an empty config. There is no "stuck in cdFMC" state.
+- **Factory reset is the escape hatch, and it's clean.** Two distinct motions worth knowing: `configure manager local` reverts management to on-box FDM but *keeps* the running config; `configure factory-default` (or the FDM factory-reset workflow) actually empties the config back to day-zero; a full ROMMON re-image is available if the config layer itself is corrupt. There is no "stuck in cdFMC" state — every state has a documented way back to Layer 1. Ch 15 covers each path with exact syntax.
 
 ## Prerequisites
 
