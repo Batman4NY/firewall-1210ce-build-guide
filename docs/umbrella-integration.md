@@ -3,12 +3,12 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
-**Prerequisites:** [Chapter 5: FDM baseline](fdm-baseline.md) — FTD with reachable outside IP.
+**Prerequisites:** [Chapter 6: FDM baseline](fdm-baseline.md) — FTD with reachable outside IP.
 
 Wire **Cisco Umbrella** (DNS-layer filtering + SIG for full SWG) into the FTD via a SASE tunnel. Umbrella eval / free tier is available for lab use.
 
 !!! note "Licensing note"
-    Umbrella integration on FTD requires the DNS Security (Umbrella) module — see [Chapter 13: Licensing](licensing.md).
+    Umbrella integration on FTD requires the DNS Security (Umbrella) module — see [Chapter 14: Licensing](licensing.md).
 
 ## Umbrella tenant setup
 

@@ -3,7 +3,7 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
-**Prerequisites:** [Chapter 6: Security policies](security-policies.md) deployed.
+**Prerequisites:** [Chapter 7: Security policies](security-policies.md) deployed.
 
 Cisco Talos is the intelligence engine behind IPS and URL filtering. This chapter covers making sure updates flow automatically and Talos data is being pulled in.
 

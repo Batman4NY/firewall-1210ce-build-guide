@@ -74,16 +74,17 @@ Reasonable to do the baseline in an evening and layer integrations on over subse
 | 2 | [Bill of materials](bill-of-materials.md) | 📝 Draft |
 | 3 | [Console access via ConsolePi](console-access.md) | ✅ Complete |
 | 4 | [First boot and initial config](first-boot.md) | 📝 Draft |
-| 5 | [FDM baseline — interfaces + routing](fdm-baseline.md) | ⚠ WIP |
-| 6 | [Security policies — access + IPS + URL](security-policies.md) | ⚠ WIP |
-| 7 | [Talos intel + updates](talos-intel.md) | ⚠ WIP |
-| 8 | [Onboarding to Security Cloud Control](scc-onboarding.md) | ⚠ WIP |
-| 9 | [Managing via SCC](scc-managed.md) | ⚠ WIP |
-| 10 | [Duo MFA on FDM/SCC](duo-integration.md) | ⚠ WIP |
-| 11 | [Umbrella SASE tunnel](umbrella-integration.md) | ⚠ WIP |
-| 12 | [ThousandEyes on the FW](thousandeyes-integration.md) | ⚠ WIP |
-| 13 | [Licensing — eval to production](licensing.md) | 📝 Draft |
-| 14 | [Troubleshooting](troubleshooting.md) | ⚠ WIP |
+| 5 | [Choosing your management path](choose-mgmt-path.md) | 📝 Draft |
+| 6 | [FDM baseline — interfaces + routing](fdm-baseline.md) | ⚠ WIP |
+| 7 | [Security policies — access + IPS + URL](security-policies.md) | ⚠ WIP |
+| 8 | [Talos intel + updates](talos-intel.md) | ⚠ WIP |
+| 9 | [Onboarding to Security Cloud Control](scc-onboarding.md) | ⚠ WIP |
+| 10 | [Managing via SCC](scc-managed.md) | ⚠ WIP |
+| 11 | [Duo MFA on FDM/SCC](duo-integration.md) | ⚠ WIP |
+| 12 | [Umbrella SASE tunnel](umbrella-integration.md) | ⚠ WIP |
+| 13 | [ThousandEyes on the FW](thousandeyes-integration.md) | ⚠ WIP |
+| 14 | [Licensing — eval to production](licensing.md) | 📝 Draft |
+| 15 | [Troubleshooting](troubleshooting.md) | ⚠ WIP |
 
 Legend: **✅ complete** — ready to follow · **📝 draft** — skeleton with real content · **⚠ WIP** — placeholder / outline only
 

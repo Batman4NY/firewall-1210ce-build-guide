@@ -61,6 +61,7 @@ nav:
   - Bill of materials: bill-of-materials.md
   - Console access via ConsolePi: console-access.md
   - First boot and initial config: first-boot.md
+  - Choosing your management path: choose-mgmt-path.md
   - FDM baseline — interfaces + routing: fdm-baseline.md
   - Security policies — access + IPS + URL: security-policies.md
   - Talos intel + updates: talos-intel.md

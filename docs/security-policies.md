@@ -3,7 +3,7 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
-**Prerequisites:** [Chapter 5: FDM baseline](fdm-baseline.md) — inside/outside zones and routing must be live.
+**Prerequisites:** [Chapter 6: FDM baseline](fdm-baseline.md) — inside/outside zones and routing must be live.
 
 Get baseline security policies in place: access control (allow inside→outside, deny inbound), Snort IPS, URL filtering with Talos categorization.
 

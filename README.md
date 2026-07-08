@@ -41,6 +41,7 @@ A production-grade Cisco Secure Firewall running FTD 7.6, managed both locally v
 | Bill of materials | 📝 Draft |
 | Console access via ConsolePi | ✅ Complete |
 | First boot and initial config | 📝 Draft |
+| Choosing your management path | 📝 Draft |
 | FDM baseline — interfaces + routing | ⚠ WIP |
 | Security policies — access + IPS + URL | ⚠ WIP |
 | Talos intel + updates | ⚠ WIP |

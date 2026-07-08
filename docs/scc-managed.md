@@ -3,7 +3,7 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
-**Prerequisites:** [Chapter 8: SCC onboarding](scc-onboarding.md) — device Online in SCC.
+**Prerequisites:** [Chapter 9: SCC onboarding](scc-onboarding.md) — device Online in SCC.
 
 Day-to-day workflow once the FW is SCC-managed.
 

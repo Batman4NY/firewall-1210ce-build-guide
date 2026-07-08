@@ -3,12 +3,12 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
-**Prerequisites:** [Chapter 8: SCC onboarding](scc-onboarding.md) — device Online in SCC for SCC SAML flow (FDM SAML path can proceed without SCC).
+**Prerequisites:** [Chapter 9: SCC onboarding](scc-onboarding.md) — device Online in SCC for SCC SAML flow (FDM SAML path can proceed without SCC).
 
 Add Duo MFA to admin access on FDM and SCC. Free Duo tenant (Duo Free) supports the basic pattern.
 
 !!! note "Licensing note"
-    Duo Free tier covers up to 10 users, sufficient for this lab. See [Chapter 13: Licensing](licensing.md) for FTD-side entitlement requirements.
+    Duo Free tier covers up to 10 users, sufficient for this lab. See [Chapter 14: Licensing](licensing.md) for FTD-side entitlement requirements.
 
 ## Duo tenant setup
 
