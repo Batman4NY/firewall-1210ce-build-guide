@@ -151,7 +151,7 @@ You can skip Step 3 and stay on Step 2 forever — that's a legitimate end state
 
 Continue building the Layer 1 foundation before adding cloud management on top:
 
-- **Layer 1 build-out** → [Ch 6 — FDM baseline](fdm-baseline.md), then [Ch 7 — Interfaces + routing](interfaces-routing.md), then [Ch 8 — Policy baseline](policy-baseline.md).
+- **Layer 1 build-out** → [Ch 6 — FDM baseline](fdm-baseline.md), then [Ch 7 — Security policies](security-policies.md), then [Ch 8 — Talos intel](talos-intel.md).
 - **Step 2 — add SCC** → [Ch 9 — SCC onboarding](scc-onboarding.md) (after the Layer 1 baseline is stable).
 - **Step 3 — migrate to cdFMC** → [Ch 10 — Managing via SCC](scc-managed.md) (after Step 2).
 - **Step 4 — walk it back** → [Ch 15 — Troubleshooting](troubleshooting.md) (available anytime).
