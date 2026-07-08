@@ -1,0 +1,73 @@
+site_name: 🛡️ Cisco Secure Firewall 1210CE Build Guide
+site_description: A build guide for the Cisco Secure Firewall 1210CE — from unboxing through FTD 7.6 baseline, Security Cloud Control onboarding, Talos, ThousandEyes, Duo, and Umbrella integration.
+site_url: https://batman4ny.github.io/firewall-1210ce-build-guide/
+site_author: Billy Garcia
+copyright: "© 2026 Billy Garcia (Batman4NY) — Apache-2.0. Personal home lab documentation. Not affiliated with, endorsed by, or representing Cisco Systems, Inc."
+repo_url: https://github.com/Batman4NY/firewall-1210ce-build-guide
+repo_name: Batman4NY/firewall-1210ce-build-guide
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.magiclink
+  - toc:
+      permalink: true
+
+nav:
+  - Overview: index.md
+  - Bill of materials: bill-of-materials.md
+  - Console access via ConsolePi: console-access.md
+  - First boot and initial config: first-boot.md
+  - FDM baseline — interfaces + routing: fdm-baseline.md
+  - Security policies — access + IPS + URL: security-policies.md
+  - Talos intel + updates: talos-intel.md
+  - Onboarding to Security Cloud Control: scc-onboarding.md
+  - Managing via SCC: scc-managed.md
+  - Duo MFA on FDM/SCC: duo-integration.md
+  - Umbrella SASE tunnel: umbrella-integration.md
+  - ThousandEyes on the FW: thousandeyes-integration.md
+  - Licensing — eval to production: licensing.md
+  - Troubleshooting: troubleshooting.md

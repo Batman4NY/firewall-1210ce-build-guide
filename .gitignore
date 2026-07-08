@@ -1,0 +1,27 @@
+# mkdocs build output
+site/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+
+# OS junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editor
+.vscode/
+.idea/
+*.iml
+
+# Local overrides
+.env
+.env.local
