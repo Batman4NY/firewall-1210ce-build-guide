@@ -5,9 +5,10 @@
 
 ## The firewall
 
-- **1 × Cisco Secure Firewall 1210CE** (PID: `FPR1210CE-NGFW-K9`) `[verify current]`
+- **1 × Cisco Secure Firewall 1210CE** — PID family: `CSF1210CE-ASA-K9` (ASA image) or the FTD-image equivalent `[confirm exact SKU against current Cisco price book for the software train you want]`
+    - The 1200 Series uses the **CSF** prefix; the legacy **FPR** prefix belongs to the Firepower 1000 / 2100 / 3100 / 4100 / 9300 families
     - 1U desktop or 1U rack form factor
-    - Ships with FTD image pre-loaded (7.x)
+    - Ships with an image (ASA or FTD) pre-loaded depending on the SKU
     - Includes rack ears
 
 **Sourcing:** Cisco Employee Program (if you're a Cisco employee), Cisco Partner allocation, or via a Cisco Reseller. Full evaluation licensing (all features, 90 days) is available on any 1210CE via [Cisco Smart Software Manager](https://software.cisco.com/software/csws/ws/platform/home).
