@@ -124,10 +124,10 @@ Layer 4 — **FMCv on your own Debian/KVM host** — is the "I want to own the w
 
 The lab is going to walk every layer above Layer 0, in order, so you (and any customer you're mirroring) sees the full lifecycle end-to-end:
 
-- [x] **Step 1 — FDM standalone.** ✅ **Done.** This is where you are right now. FDM is authoritative, no cloud attachments. Continues through [Ch 6 — FDM baseline](fdm-baseline.md), [Ch 7 — Interfaces + routing](interfaces-routing.md), [Ch 8 — Policy baseline](policy-baseline.md).
+- [x] **Step 1 — FDM standalone.** ✅ **Done.** This is where you are right now. FDM is authoritative, no cloud attachments. Continues through [Ch 6 — FDM baseline](fdm-baseline.md), [Ch 7 — Security policies](security-policies.md), [Ch 8 — Talos intel](talos-intel.md).
 - [ ] **Step 2 — Onboard to existing SCC tenant.** ⏭️ **Next.** Register `fw1210ce` to the Salient SCC tenant. Config stays on-box; SCC gets an inventory entry and a change log. See [Ch 9 — SCC onboarding](scc-onboarding.md).
-- [ ] **Step 3 — FMT migration to cdFMC.** ⏳ **Queued after Step 2.** Run the Firewall Migration Tool, translate the FDM policy into cdFMC, cut over. FDM becomes read-only. See [Ch 10 — cdFMC migration](cdfmc-migration.md).
-- [ ] **Step 4 — Factory reset back to Layer 1.** ⏳ **Available anytime.** Documented so the reader knows the "walk away" path exists and what it costs. See [Ch 14 — Factory reset + rebuild](factory-reset.md).
+- [ ] **Step 3 — FMT migration to cdFMC.** ⏳ **Queued after Step 2.** Run the Firewall Migration Tool, translate the FDM policy into cdFMC, cut over. FDM becomes read-only. See [Ch 10 — Managing via SCC](scc-managed.md).
+- [ ] **Step 4 — Factory reset back to Layer 1.** ⏳ **Available anytime.** Documented so the reader knows the "walk away" path exists and what it costs. See [Ch 15 — Troubleshooting](troubleshooting.md).
 
 You can skip Step 3 and stay on Step 2 forever — that's a legitimate end state, and probably the right one for a small-office deployment. Step 3 is only worth it if you need full FMC feature depth or you're standardizing on cdFMC across a fleet.
 
@@ -153,5 +153,5 @@ Continue building the Layer 1 foundation before adding cloud management on top:
 
 - **Layer 1 build-out** → [Ch 6 — FDM baseline](fdm-baseline.md), then [Ch 7 — Interfaces + routing](interfaces-routing.md), then [Ch 8 — Policy baseline](policy-baseline.md).
 - **Step 2 — add SCC** → [Ch 9 — SCC onboarding](scc-onboarding.md) (after the Layer 1 baseline is stable).
-- **Step 3 — migrate to cdFMC** → [Ch 10 — cdFMC migration](cdfmc-migration.md) (after Step 2).
-- **Step 4 — walk it back** → [Ch 14 — Factory reset + rebuild](factory-reset.md) (available anytime).
+- **Step 3 — migrate to cdFMC** → [Ch 10 — Managing via SCC](scc-managed.md) (after Step 2).
+- **Step 4 — walk it back** → [Ch 15 — Troubleshooting](troubleshooting.md) (available anytime).
