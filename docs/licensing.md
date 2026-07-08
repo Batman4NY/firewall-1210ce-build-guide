@@ -1,9 +1,9 @@
 # Licensing — eval to production
 
 !!! info "📝 Draft"
-    This chapter has skeleton content — most of the structure is in place, specific screen captures and gotchas will be filled in during the actual build.
+    Structure and prose are in place and fact-checked against the Cisco Secure Firewall 7.6 licensing docs. **Screenshots will be added during the actual build session** (FDM Smart Licensing pages, SSM token-generation flow, entitlement views). Specific FDM 7.6 UI paths should also be confirmed against the FDM 7.6 config guide before publishing — everything below is consistent with 7.0–7.3 FDM guides.
 
-The 1210CE ships with **90-day evaluation** licensing that unlocks all features. This chapter covers how to work with it and transition to Smart Licensing before the 90 days run out.
+The 1210CE ships with a **90-day evaluation** licensing mode that unlocks the full FTD feature set. This chapter covers how to work with it and how to transition to Smart Licensing before the 90 days run out.
 
 ## What eval mode unlocks
 
@@ -39,24 +39,27 @@ Options:
 
 ## What entitles what
 
-The 1210CE needs three entitlements for a full feature deployment:
+FTD licensing on the 1210CE is layered: an **Essentials** (base) entitlement for the platform, plus three optional term-based subscription entitlements for feature groups:
 
-- **Threat** — IPS + Snort rule feeds
-- **Malware** — file inspection / SHA feeds
-- **URL** — URL categorization + reputation
+- **IPS** (called **Threat** in older docs) — intrusion policies, file policies, and Security Intelligence feed downloads (URL / DNS / network SI)
+- **Malware Defense** — malware cloud lookup (SHA lookups) and dynamic file analysis
+- **URL Filtering** — access control rules matching on URL category / reputation, and the URL category/reputation feed updates
 
-Each is a separate SKU. In eval mode, all three are automatically active.
+Each is a separate SKU. In eval mode, all three are automatically active on top of Essentials.
 
-## Unlicensed operation
+!!! note "Terminology"
+    Cisco renamed a few of these in recent releases. If you see **Threat** in one doc and **IPS** in another, they're the same entitlement. Same for **Malware** → **Malware Defense**. This guide uses the current names.
 
-If eval expires or Smart Licensing isn't set up:
+## What happens when a license expires
 
-- **IPS**: stops enforcing (deploys succeed but no new blocks)
-- **URL filtering**: works with cached categories, no fresh updates
-- **Malware**: works with cached hashes, no fresh feeds
-- The FW still functions as a stateful firewall
+The behavior when an entitlement expires (or when eval mode ends without Smart Licensing) is **per-entitlement**, and it isn't a graceful "fall back to cached data" story on all three:
 
-Not a hard cliff — degraded but not dead.
+- **IPS / Threat expiry** — intrusion policies and file policies stop being applied, and the system stops downloading Security Intelligence feed updates. Existing config stays in place, but the enforcement path drops out.
+- **URL Filtering expiry** — access control rules with URL category conditions **immediately stop filtering URLs**, and the system stops downloading URL category/reputation updates. This is a hard stop on category-based filtering, not a degraded-cache mode.
+- **Malware Defense expiry** — malware cloud lookups and dynamic file analysis stop; file policies themselves are gated by the IPS entitlement above.
+- The device still functions as a **stateful L3/L4 firewall** — access control by IP / port / zone continues to work.
+
+So the practical impact is: L4 firewalling survives; L7 inspection (IPS, malware lookup, URL categorization) largely does not. Plan to have Smart Licensing registered before the 90-day eval clock hits zero.
 
 ## Renewals
 

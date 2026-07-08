@@ -3,7 +3,12 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
+**Prerequisites:** [Chapter 5: FDM baseline](fdm-baseline.md); FTD 7.6+ for native integration path.
+
 Add **Cisco ThousandEyes** for end-to-end path visibility from the FW outward. Cisco tenant access via employee credentials.
+
+!!! note "Licensing note"
+    ThousandEyes on Nexus/FTD requires a ThousandEyes tenant + endpoint agent. See [Chapter 13: Licensing](licensing.md).
 
 ## ThousandEyes tenant
 

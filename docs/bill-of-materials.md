@@ -1,15 +1,18 @@
 # Bill of materials
 
 !!! info "📝 Draft"
-    Baseline BOM below is complete for the initial build. Rack accessories, cabling, and downstream switch recommendations are still being iterated. Specific part numbers marked `[verify current]` should be double-checked against Cisco's current price book if you're ordering.
+    Baseline BOM below is complete for the initial build. Rack accessories, cabling, and downstream switch recommendations are still being iterated.
 
 ## The firewall
 
-- **1 × Cisco Secure Firewall 1210CE** — PID family: `CSF1210CE-ASA-K9` (ASA image) or the FTD-image equivalent `[confirm exact SKU against current Cisco price book for the software train you want]`
+- **1 × Cisco Secure Firewall 1210CE** — the **ASA-image** SKU is `CSF1210CE-ASA-K9`; the **FTD-image** SKU should be pulled from the current Cisco price book for the software train you want `[confirm exact SKU]`
     - The 1200 Series uses the **CSF** prefix; the legacy **FPR** prefix belongs to the Firepower 1000 / 2100 / 3100 / 4100 / 9300 families
     - 1U desktop or 1U rack form factor
     - Ships with an image (ASA or FTD) pre-loaded depending on the SKU
     - Includes rack ears
+
+!!! tip "Definitive SKU: ask the box"
+    The authoritative SKU for a unit already in hand is what the firewall itself reports. Once you've got console access wired up (see [Chapter 4 — First boot and initial config](first-boot.md)), `show inventory` at the CLI prints the PID Cisco assigned to your specific unit — that beats any price-book lookup.
 
 **Sourcing:** Cisco Employee Program (if you're a Cisco employee), Cisco Partner allocation, or via a Cisco Reseller. Full evaluation licensing (all features, 90 days) is available on any 1210CE via [Cisco Smart Software Manager](https://software.cisco.com/software/csws/ws/platform/home).
 

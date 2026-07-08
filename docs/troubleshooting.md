@@ -3,6 +3,8 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
+**Symptoms are grouped by build phase.** Jump to the phase that matches when the issue appeared: [Console](#console-shows-nothing-after-power-on) · [First boot / FDM reachability](#cannot-reach-fdm-after-first-boot) · [Deploy](#deploy-fails) · [Talos updates](#talos-updates-not-pulling) · [URL filtering](#url-filtering-not-blocking-test-urls) · [SCC onboarding](#scc-onboarding-fails) · [Duo](#duo-login-loop) · [Umbrella](#umbrella-tunnel-down) · [ThousandEyes](#thousandeyes-agent-not-registering) · [Nuclear reset](#fw-in-a-weird-state).
+
 Organized by symptom. Find your symptom, walk the checks, skip to next if not applicable.
 
 ## Console shows nothing after power on
