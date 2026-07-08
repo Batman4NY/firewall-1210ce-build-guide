@@ -60,18 +60,23 @@ extra_css:
   - stylesheets/matrix.css
 
 nav:
-  - Overview: index.md
-  - Bill of materials: bill-of-materials.md
-  - Console access via ConsolePi: console-access.md
-  - First boot and initial config: first-boot.md
-  - Choosing your management path: choose-mgmt-path.md
-  - FDM baseline — interfaces + routing: fdm-baseline.md
-  - Security policies — access + IPS + URL: security-policies.md
-  - Talos intel + updates: talos-intel.md
-  - Onboarding to Security Cloud Control: scc-onboarding.md
-  - Managing via SCC: scc-managed.md
-  - Duo MFA on FDM/SCC: duo-integration.md
-  - Umbrella SASE tunnel: umbrella-integration.md
-  - ThousandEyes on the FW: thousandeyes-integration.md
-  - Licensing — eval to production: licensing.md
-  - Troubleshooting: troubleshooting.md
+  - Getting started:
+    - Overview: index.md
+    - Bill of materials: bill-of-materials.md
+    - Console access via ConsolePi: console-access.md
+    - First boot and initial config: first-boot.md
+  - Choose your path:
+    - Choosing your management path: choose-mgmt-path.md
+  - FDM standalone:
+    - FDM baseline — interfaces + routing: fdm-baseline.md
+    - Security policies — access + IPS + URL: security-policies.md
+    - Talos intel + updates: talos-intel.md
+  - SCC hybrid:
+    - Onboarding to Security Cloud Control: scc-onboarding.md
+    - Managing via SCC: scc-managed.md
+    - Duo MFA on FDM/SCC: duo-integration.md
+    - Umbrella SASE tunnel: umbrella-integration.md
+    - ThousandEyes on the FW: thousandeyes-integration.md
+  - Reference:
+    - Licensing — eval to production: licensing.md
+    - Troubleshooting: troubleshooting.md
