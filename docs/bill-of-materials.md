@@ -12,7 +12,29 @@
     - Includes rack ears
 
 !!! tip "Definitive SKU: ask the box"
-    The authoritative SKU for a unit already in hand is what the firewall itself reports. Once you've got console access wired up (see [Chapter 4 — First boot and initial config](first-boot.md)), `show inventory` at the CLI prints the PID Cisco assigned to your specific unit — that beats any price-book lookup.
+    The authoritative SKU for a unit already in hand is what the firewall itself reports. Once you've got console access wired up (see [Chapter 4 — First boot and initial config](first-boot.md)), `show inventory` at the FTD converged CLI prints the PID Cisco assigned to your specific unit — that beats any price-book lookup.
+
+    Expected output on a 1210CE:
+
+    ```
+    > show inventory
+    Name: "module 0", DESCR: "Secure Firewall 1210 Compact Appliance"
+    PID: CSF-1210CE        , VID: V01     , SN: FJC3xxxxxxx
+    ```
+
+    - **PID** `CSF-1210CE` — the hardware base identifier (`CSF` = **C**isco **S**ecure **F**irewall). This is what shows on the box; the *orderable* SKU (`CSF1210CE-ASA-K9`, `CSF1210CE-*-K9` for the FTD image) is the bundled hardware + image + license combination and lives in the price book, not on the unit.
+    - **VID** — hardware revision (V01 on the current shipping build).
+    - **SN** — your unit's serial number. You'll need it for Smart Licensing registration and any RMA.
+
+    A companion `show version` on the same converged CLI prints the running FTD train — this guide is written and tested against **FTD 7.6.0 (Build 113)**:
+
+    ```
+    > show version
+    --------------------[ <hostname> ]--------------------
+    Model                     : Cisco Secure Firewall 1210CE Threat Defense (86) Version 7.6.0 (Build 113)
+    LSP version               : lsp-rel-YYYYMMDD-nnnn
+    VDB version               : 392
+    ```
 
 **Sourcing:** Cisco Employee Program (if you're a Cisco employee), Cisco Partner allocation, or via a Cisco Reseller. Full evaluation licensing (all features, 90 days) is available on any 1210CE via [Cisco Smart Software Manager](https://software.cisco.com/software/csws/ws/platform/home).
 
