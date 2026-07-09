@@ -60,6 +60,7 @@ extra_css:
   - stylesheets/matrix.css
 
 nav:
+  - "↩ Back to Batman4NY": https://batman4ny.github.io/
   - Getting started:
     - Overview: index.md
     - Bill of materials: bill-of-materials.md
