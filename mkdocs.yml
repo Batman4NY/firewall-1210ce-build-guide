@@ -65,6 +65,7 @@ nav:
     - Overview: index.md
     - Bill of materials: bill-of-materials.md
     - Console access via ConsolePi: console-access.md
+    - Remote factory reset — FXOS reimage: remote-factory-reset.md
     - First boot and initial config: first-boot.md
   - Choose your path:
     - Choosing your management path: choose-mgmt-path.md

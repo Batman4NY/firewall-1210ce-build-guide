@@ -1,0 +1,4 @@
+# Session-local pexpect + probe captures.
+# Kept for grep + post-mortem, not for the published site.
+*.log
+*.txt

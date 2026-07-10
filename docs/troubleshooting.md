@@ -3,17 +3,21 @@
 !!! warning "⚠ WIP"
     Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
 
-**Symptoms are grouped by build phase.** Jump to the phase that matches when the issue appeared: [Console](#console-shows-nothing-after-power-on) · [First boot / FDM reachability](#cannot-reach-fdm-after-first-boot) · [Deploy](#deploy-fails) · [Talos updates](#talos-updates-not-pulling) · [URL filtering](#url-filtering-not-blocking-test-urls) · [SCC onboarding](#scc-onboarding-fails) · [Duo](#duo-login-loop) · [Umbrella](#umbrella-tunnel-down) · [ThousandEyes](#thousandeyes-agent-not-registering) · [Nuclear reset](#fw-in-a-weird-state).
+**Symptoms are grouped by build phase.** Jump to the phase that matches when the issue appeared: [Console](#console-shows-nothing-after-power-on) · [First boot / FDM reachability](#cannot-reach-fdm-after-first-boot) · [Deploy](#deploy-fails) · [Talos updates](#talos-updates-not-pulling) · [URL filtering](#url-filtering-not-blocking-test-urls) · [SCC onboarding](#scc-onboarding-fails) · [Duo](#duo-login-loop) · [Umbrella](#umbrella-tunnel-down) · [ThousandEyes](#thousandeyes-agent-not-registering) · [Nuclear reset (Ch 3.5)](remote-factory-reset.md).
 
 Organized by symptom. Find your symptom, walk the checks, skip to next if not applicable.
 
 ## Console shows nothing after power on
 
-- Cable is USB-C **data** (not charge-only)
+Fastest triage is the FTDI + RJ45 primary path — it isolates cable-quality issues from platform issues in one step. Full details in [Ch 3 — Console access](console-access.md).
+
 - FW power is on (front LED)
-- `/dev/ttyACM0` exists on ConsolePi (`lsusb`, `ls /dev/ttyACM*`)
-- Cable fully seated (looser than expected on FW side)
-- USB-C wins over RJ45 — if RJ45 is also plugged in, unplug it
+- **FTDI cable enumerated on ConsolePi**: `lsusb | grep FTDI` returns `0403:6001 FT232`
+- **`/dev/ttyUSB0` exists** on ConsolePi (`ls /dev/ttyUSB*`) — primary FTDI + RJ45 path
+- **ser2net serving port `:8000`** for the FTDI: `telnet <consolepi-ip> 8000`
+- Nothing else holds `/dev/ttyUSB0` exclusive (no `picocom` process from a stale `consolepi-menu` session)
+- If you're on the alternative USB-C path: cable is **data**, not charge-only; `/dev/ttyACM0` exists (`ls /dev/ttyACM*`); ser2net port is `:9000` — see the [ser2net port mapping table](console-access.md#ser2net-port-mapping)
+- Note: the 1210CE routes console output to USB-C when both interfaces are plugged in. If FTDI is your primary but USB-C is also connected, unplug USB-C or explicitly pick `/dev/ttyUSB0` via `consolepi-menu`.
 
 ## Cannot reach FDM after first boot
 
@@ -59,13 +63,12 @@ Organized by symptom. Find your symptom, walk the checks, skip to next if not ap
 
 ## FW in a weird state
 
-Nuclear option:
+Nuclear option: **[Ch 3.5 — Remote factory reset](remote-factory-reset.md)**. That runs the Cisco-recommended FXOS reimage (`install security-pack version <ver> force` at `/firmware/auto-install#`) and returns the FW to first-boot state entirely over the console + management network.
 
-```
-> configure factory-default
-```
+Save your smart license token first — you'll need to re-register.
 
-...will wipe the FW back to factory. Then re-run the [First boot](first-boot.md) flow. Save your smart license token — you'll need to re-register.
+!!! warning "Stale command in earlier drafts of this guide"
+    Older versions of this chapter (and older Cisco community posts) point at `> configure factory-default` at the FTD `>` prompt. That command **does not exist on FTD 7.6.0-113 for the 1200 series** — enumerated live on the box, no match. The build's factory-reset surface is FXOS, not FTD. Use [Ch 3.5](remote-factory-reset.md).
 
 ## Still stuck?
 
