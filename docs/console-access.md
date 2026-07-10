@@ -163,6 +163,55 @@ See the [Troubleshooting chapter](troubleshooting.md) for more depth.
 
 If you have the 1210CE consoled **and** another device (say, a downstream Catalyst switch or another firewall) on the same ConsolePi at once, they show up as separate `/dev/ttyUSB*` or `/dev/ttyACM*` numbered devices. Check `lsusb` to see which vendor is which; `consolepi-menu` shows all attached devices with their bauds so you can pick.
 
+## picocom keybindings — reference
+
+`consolepi-menu` option 1 launches `picocom /dev/ttyUSB0 --baud 9600`. Picocom's escape prefix is `Ctrl-A`. Common combinations you'll actually use:
+
+| Combo | What it does |
+|---|---|
+| `Ctrl-A  Ctrl-X` | **Exit picocom** (clean — restores tty, releases `/dev/ttyUSB0` so ser2net can serve it) |
+| `Ctrl-A  Ctrl-Q` | Exit without resetting tty (leave stale settings behind — rarely what you want) |
+| `Ctrl-A  Ctrl-B` | **Change baud rate** — prompts for new value. Easy to hit by accident; if your screen goes to garbage after typing something into picocom, this is the first thing to check |
+| `Ctrl-A  Ctrl-A` | Send a literal `Ctrl-A` through to the FTD (rare — but the ASA-CLI diag mode uses `Ctrl-A d` for detach, so you'd need this to send that sequence to picocom's inner target) |
+| `Ctrl-A  Ctrl-C` | Toggle local echo |
+| `Ctrl-A  Ctrl-H` | Show picocom's own help / status line |
+| `Ctrl-A  Ctrl-P` | Pulse DTR (sends a hardware reset signal to the FW's console port — useful only for platforms that support it; harmless on 1210CE) |
+
+!!! warning "Reset picocom's baud back to 9600 if you drift"
+    On the 1210CE, the console UART is **hardcoded at 9600 8N1** — you can't change the FW's side. If picocom's baud gets accidentally changed via `Ctrl-A Ctrl-B`, hit `Ctrl-A Ctrl-B` again and enter `9600`. Or `Ctrl-A Ctrl-X` to exit and relaunch via `consolepi-menu` (which always starts at 9600).
+
+## FTD ↔ FXOS prompt navigation
+
+The 1210CE has two CLI planes stacked. Which one you're at depends on how you connected:
+
+| How you reached it | Landing prompt | To reach the other plane |
+|---|---|---|
+| **Serial console** (via picocom / ser2net telnet `:8000`) | FXOS `firepower#` first, then `connect ftd` → FTD `>` | From FTD `>` — type `exit` to return to FXOS `firepower#`. **`connect fxos` from FTD console is a no-op** — box replies `You came from FXOS Service Manager. Please enter 'exit' to go back.` |
+| **SSH to mgmt IP** as `admin` | Straight to FTD `>` (bypasses FXOS on this platform) | From FTD `>` — type `connect fxos`, land at FXOS `firepower#`. `exit` here **closes SSH** rather than returning to FXOS |
+
+The two exit-behavior differences are the classic 1200-series footgun. If you're scripting via SSH and expect `exit` to bounce you between planes, you'll drop the whole session instead.
+
+## Diagnostic CLI (ASA-like mode) — detach without exiting
+
+From the FTD `>` prompt, `system support diagnostic-cli` drops you into an ASA-flavored CLI (`ciscoasa#`). To return to FTD `>` without closing SSH:
+
+```
+Ctrl-A  d
+```
+
+That's Ctrl-A followed by lowercase `d` (not Ctrl-D). If you're in picocom on top of the console AND in diagnostic-cli inside the FTD, you'd need Ctrl-A Ctrl-A first to send the Ctrl-A through picocom to the FTD, then a plain `d` — a nested-escape gotcha.
+
+## Console recovery cheat sheet
+
+| Symptom | Fastest fix |
+|---|---|
+| `telnet <ip> 8000` returns `Device open failure: Object was already in use` | Something has `/dev/ttyUSB0` exclusive. Usually picocom from a prior `consolepi-menu` session. `ssh pi@<consolepi> "pgrep -a picocom"` to identify, then kill or `Ctrl-A Ctrl-X` from that session |
+| Console shows silence — FW seems alive, no prompt | Old input in FTD's line buffer. Send `Ctrl-U` (line kill) then `\r` to reset the input state and reprint the prompt |
+| Console emits garble instead of characters | Baud mismatch. Verify picocom is at 9600 (`Ctrl-A Ctrl-B`, type `9600`) — the 1210CE UART is fixed at 9600 |
+| `--More--` pager stuck from a `show` command a while ago | Send `q` to escape the pager, then `\r` to freshen the prompt |
+| Picocom stuck, `Ctrl-A Ctrl-X` doesn't respond | Kill the picocom process from ConsolePi over SSH: `sudo pkill picocom`. Then relaunch via `consolepi-menu` |
+| Ctrl-U + \r still gets nothing | Only ONE process can hold `/dev/ttyUSB0`. If picocom is running, ser2net is locked out (and vice-versa). Verify with `pgrep -a picocom` + `sudo fuser /dev/ttyUSB0` on ConsolePi |
+
 ## Next
 
 Head to [First boot and initial config](first-boot.md) to power the 1210CE on and run through the initial setup.
