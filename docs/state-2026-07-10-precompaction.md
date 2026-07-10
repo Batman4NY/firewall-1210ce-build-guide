@@ -1,70 +1,83 @@
-# Pre-compaction state snapshot — 2026-07-10 late-morning
+# Pre-compaction state snapshot — 2026-07-10 afternoon (revision 2)
 
-Written just before Claude conversation compaction. Everything below is CONFIRMED by direct in-session evidence — must survive the compaction boundary.
+Written just before Claude conversation compaction. Everything CONFIRMED by direct in-session evidence.
 
-## The 1210 — actual state right now
+## Current activity
 
-- **Mgmt IP:** `192.168.10.59` (via DHCP) — **CHANGED SUBNET**: now on **AI subnet 192.168.10.0/24**, not the 192.168.1.0/24 home LAN where it was yesterday. Rack rewire moved it. Yesterday's `.161` no longer answers.
-- Default gateway: `192.168.10.1`
-- DNS: `192.168.1.3` (cross-subnet — home LAN's Pi-hole)
-- Domain: `uppernyack.com`
-- MAC (management0): `78:11:9d:6a:80:80` (unchanged)
-- UUID: `dc0bef0a-66b5-11f1-9951-911e3bad6766` (unchanged — same physical box)
-- Version: FTD `7.6.0 (Build 113)` on FXOS `2.16(0.128)`
-- Manager mode: confirmed `Managed locally` (Layer 1, FDM standalone) — journey did NOT regress
-- **OpenBao entry `infra/webui/fw1210ce-admin`** updated with new `host` + `fdm_url`
+**Validation reset RUNNING under Bash task `b5mgt202h`** — launched at ~15:24 EDT.
 
-## Console access — post-rewire
+- **Target**: `install security-pack version 7.6.0-113` (cross-version DOWNGRADE from current 7.6.4-69 back to factory pre-staged)
+- **Script**: `/tmp/claude-1000/-home-fabian/6dba75c3-8307-42ec-9551-496d49432b88/scratchpad/reset-validate.py`
+- **Log**: `/home/fabian/epoch-dev/firewall-1210ce-build-guide/captures/reset-validate-2026-07-10.log`
+- **Expected wall-clock**: ~22-25 min end-to-end (empirical from prior run: install fire → first-boot ~17m, → wizard done ~22m)
+- **Task-notification**: direct on script exit (no wrapper watchdog)
 
-**PRIMARY (working, clean):**
-- FTDI RJ45 → ConsolePi USB-A → `/dev/ttyUSB0` → ser2net TCP `:8000`
-- Command: `telnet 192.168.1.121 8000`
-- Wake sequence: `Ctrl-C`, `Ctrl-U`, `Enter` → FTD `>` prompt
-- Data is bit-perfect — `show network` runs clean
+## Post-compaction: WHAT TO DO
 
-**BROKEN (do not reconnect):**
-- USB-C native CDC-ACM → `/dev/ttyACM0` → ser2net TCP `:9000`
-- Replacement USB-C cable installed during rewire enumerates as CDC-ACM but drops/corrupts bytes on data line
-- Symptom: short commands (`show version`) succeed; follow-up commands (`show network`) return `show\x07network\x07` bells
-- Currently unplugged; do not reconnect until known-good USB-C data cable is on hand
+1. **Check task `b5mgt202h`** — if completed with exit 0, read `/tmp/claude-1000/-home-fabian/6dba75c3-8307-42ec-9551-496d49432b88/tasks/b5mgt202h.output` for the final summary (elapsed timings, final version, new UUID, mgmt IP).
+2. **Verify final state**: `> show version` should return `7.6.0 (Build 113)` with a NEW UUID (different from `3c2bdc6c-7c8f-11f1-9ef7-9d09498b33b8`).
+3. **Update OpenBao**: `bao kv patch infra/webui/fw1210ce-admin host=192.168.40.<x>` where `<x>` is the new lease (Fabian moved port profile → 192.168.40.0/24 mgmt VLAN mid-run).
+4. **Add UDM DHCP reservation**: MAC `78:11:9d:6a:80:80` → suggested `192.168.40.10` (static band, matches ConsolePi pattern).
+5. **Real timing block for Ch 3.5**: replace the current empirical timings with the fresh validation-run numbers.
+6. **Push doc commits**: locally committed as `50e432c` + subsequent edits; push blocked on `gh` token — Fabian's active `bfgarcia` account only has `pull:true, push:false` on `Batman4NY/firewall-1210ce-build-guide`. Ask Fabian to run `gh auth refresh --scopes repo` or push manually.
 
-## The port-mapping misassumption that ate ~40 min
+## Topology at compaction (Fabian just moved mgmt to VLAN 40)
 
-`/etc/ser2net.yaml` config on the Pi maps:
-- `/dev/ttyUSB*` (FTDI) → ports **8000-8020**
-- `/dev/ttyACM*` (CDC-ACM/USB-C) → ports **9000-9008**
+| Component | Interface | IP | Network |
+|---|---|---|---|
+| ConsolePi | eth0 | 192.168.40.5/24 (STATIC) | mgmt VLAN 40 |
+| FTD `management0` (post-reset expected) | | 192.168.40.x (DHCP) | mgmt VLAN 40 — **just moved via port profile change** |
+| FTD `Ethernet1/1` outside | | 192.168.1.198 (DHCP factory default) | home LAN |
+| FTD console (RJ45 → FTDI → ConsolePi) | ttyUSB0 → ser2net :8000 | `telnet 192.168.40.5 8000` | mgmt VLAN 40 |
+| Workstation | eno1 | 192.168.10.3 | 192.168.10.0/24 |
 
-I spent significant session time probing `9000-9003` for BOTH console paths. Should have probed `8000` for FTDI first. Once I did, everything worked immediately.
+**Note**: I over-extrapolated "AI Subnet" as the name for `192.168.10.0/24` earlier — Fabian corrected. Use IP range in doc-facing prose, not "AI Subnet."
 
-## ConsolePi
+## Architecture findings — CORRECTED from earlier drafts
 
-- IP: `192.168.1.121` (LAN DHCP for now — static planned later today)
-- SSH working; **credentials in OpenBao at `infra/ssh/consolepi`** (user `pi`, password stored, my pub key added)
-- Hardware: new permanent Pi (`b8:27:eb:01:cc:ba` / CPU serial `fa01ccba`) — different from yesterday's Pi
-- ser2net config: `/etc/ser2net.yaml`, service active
-- `/dev/ttyUSB0` present (FTDI FT232R, serial `BG03CZLH`, VID `0403`)
-- `consolepi-menu` shows `1. ttyUSB0 [9600 8N1]` — enumeration confirmed working
+### Reset mechanism (CRITICAL — I confabulated earlier)
 
-## Root-cause verdicts (evidence-backed)
+- **`install security-pack version <same-version> force` is a SILENT NO-OP on 1200-series 7.6.x.** FXOS reports "Install started" and "Force option: true" but does nothing. `show detail` reveals `Firmware Upgrade Message: up-to-date`.
+- **The only lights-out CLI reset that actually reimages is `install security-pack version <different-version>`** — cross-version. Force flag overrides *compatibility warnings*, NOT the *same-version guard*.
+- **Cross-version signature**: FXOS emits `If you proceed with the upgrade X-Y, it will do the following: - upgrade to platform version ... - reimage the system from CSP ftd version X to Y - During the upgrade, the system will be reboot`. If you don't see "reimage the system" and "system will be reboot", the reset didn't fire.
+- **New UUID** = definitive reimage evidence. Pre-reset UUID `dc0bef0a-66b5-...` → post-reset `3c2bdc6c-7c8f-...`.
 
-- **CONFIRMED**: replacement USB-C cable installed during rewire is data-line marginal. Enumerates as CDC-ACM but corrupts bytes on data path.
-- **FALSIFIED**: earlier hypothesis that `connect ftd` from FXOS drops into a restricted CLI mode. Not the cause — FTDI path from FXOS via `connect ftd` runs `show network` clean.
+### FTD 7.6.4 wizard flow (much shorter than pre-7.6)
 
-## OpenBao entries (all current as of this snapshot)
+Post-reimage, the console lands in **FXOS** (not FTD). Two-stage first-boot:
 
-- `infra/webui/fw1210ce-admin` — admin login for FTD/FDM UI. `host=192.168.10.59`, `fdm_url=https://192.168.10.59`, password set 2026-07-09 via console reset
-- `infra/ssh/consolepi` — SSH login for the ConsolePi. `host=192.168.1.121`, user `pi`, password stored
+1. **FXOS first login** — `firepower login: admin` / `Password: Admin123` → forced password change → drops to `firepower#`
+2. **`connect ftd`** — triggers FTD wizard. Prompts (verified live on 7.6.4):
+   - EULA (page + `YES`)
+   - `Configure IPv4 via DHCP or manually? (dhcp/manual) [manual]:`
+   - `Configure IPv6 via DHCP, router, or manually? (dhcp/router/manual) [dhcp]:`
+   - `Manage the device locally? (yes/no) [yes]:`
+   - `Successfully performed firstboot initial configuration steps...`
 
-## Immediate next-move queue (post-compaction)
+**No prompts for hostname, DNS, search domains, proxy, or firewall mode on 7.6.4.** Those default to `firepower` / Cisco+OpenDNS / no proxy / routed. Custom values go via FDM UI in Ch 6 or FTD CLI `configure network ...`.
 
-1. **Order a known-good USB-C data cable** — restores primary console path (currently only FTDI works)
-2. **Set static IPs** — 1210 mgmt + ConsolePi (10-min task, resolves DHCP-re-lease-on-reboot gotcha permanently). New Q: keep 1210 on 192.168.10.x AI subnet, or move back to 192.168.1.x home LAN?
-3. **Factory reset + Ch 4 first-boot capture** (~15 min) — today's original plan, now unblocked by working console
-4. **SCC onboarding** — Layer 1 → Layer 2, capture Ch 9 material
+## Doc changes committed locally (not yet pushed)
 
-## Cross-references
+- `docs/remote-factory-reset.md` — Ch 3.5 rewritten around cross-version install truth
+- `docs/production-upgrade.md` — **DELETED** (folded into Ch 3.5; two-chapter split was based on false assumption that same-version reset works)
+- `docs/first-boot.md` — Ch 4 rewritten as post-reset verify + choose-your-next-chapter landing
+- `docs/troubleshooting.md` — updated stale-command warning
+- `mkdocs.yml` — Ch 3.6 nav entry removed
+- `docs/lessons-2026-07-10.md` — comprehensive findings appendix (804 lines total)
+- `captures/*.log` — session's raw pexpect transcripts (passwords redacted post-run in each)
 
-- Full lessons doc (assumption audit + gotchas + runbooks): [`lessons-2026-07-10.md`](lessons-2026-07-10.md)
-- Site now on metallic-paper aesthetic (from yesterday's work) — no state change needed
-- 1210CE build guide ch 5 "Choosing your management path" published + sanity-reviewed clean
-- Peer intro draft still queued (ready to send when Fabian wants)
+## Key captures on disk
+
+- `captures/staging-2026-07-10.txt` — package staging session
+- `captures/fxos-syntax-verify-2026-07-10.log` — `install security-pack ?` help enumeration
+- `captures/reset-execution-2026-07-10.log.v4-reimage-only` — first successful reimage (7.6.0 → 7.6.4)
+- `captures/wizard-finish-2026-07-10.log` — FTD wizard drive
+- `captures/post-wizard-verify-2026-07-10.log` — show version / network / managers
+- `captures/reset-validate-2026-07-10.log` — validation reset in progress
+
+## Sequence of resets on this box today
+
+1. 12:10 EDT — misfired `configure factory-default` (invalid command, silent bell-reject) — no state change
+2. 13:43 EDT — `install security-pack 7.6.0-113 force` — silent no-op (up-to-date)
+3. 14:33 EDT — `install security-pack 7.6.4-69` — REAL reimage 7.6.0-113 → 7.6.4-69, UUID changed
+4. 15:24 EDT — `install security-pack 7.6.0-113` — VALIDATION reset (in flight at compaction)

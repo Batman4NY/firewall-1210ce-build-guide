@@ -63,9 +63,12 @@ Fastest triage is the FTDI + RJ45 primary path — it isolates cable-quality iss
 
 ## FW in a weird state
 
-Nuclear option: **[Ch 3.5 — Remote factory reset](remote-factory-reset.md)**. That runs the Cisco-recommended FXOS reimage (`install security-pack version <ver> force` at `/firmware/auto-install#`) and returns the FW to first-boot state entirely over the console + management network.
+Nuclear option: **[Ch 3.5 — Remote factory reset](remote-factory-reset.md)**. That runs the Cisco-supported FXOS cross-version reimage and returns the FW to first-boot state entirely over the console + management network.
 
 Save your smart license token first — you'll need to re-register.
+
+!!! warning "Stale commands in earlier drafts of this guide"
+    Older drafts and Cisco Community posts reference `> configure factory-default` at the FTD `>` prompt, or `erase configuration` in FXOS, or `install security-pack version <same-version> force` — **none of these actually reset a 1200-series box on FTD 7.6.x**. Enumerated live on the hardware. Use [Ch 3.5](remote-factory-reset.md), which uses `install security-pack version <different-version>` — the only Cisco-supported CLI reset that actually reimages.
 
 !!! warning "Stale command in earlier drafts of this guide"
     Older versions of this chapter (and older Cisco community posts) point at `> configure factory-default` at the FTD `>` prompt. That command **does not exist on FTD 7.6.0-113 for the 1200 series** — enumerated live on the box, no match. The build's factory-reset surface is FXOS, not FTD. Use [Ch 3.5](remote-factory-reset.md).

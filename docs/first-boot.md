@@ -1,124 +1,97 @@
-# First boot and initial config
+# First boot verification + choose your next step
 
-!!! info "📝 Draft"
-    Skeleton with the general FTD boot flow. Specific screen captures and exact prompt wording will be filled in during the actual build — anything marked `[verify against unit]` is generic knowledge that should be confirmed against what your specific 1210CE presents.
+!!! success "✅ Complete · Rewritten 2026-07-10 after live capture"
+    Post-reset verification and routing to the next chapter. The actual first-boot flow (FXOS login + FTD wizard) is captured in [Ch 3.5 — Remote factory reset](remote-factory-reset.md) inline with the reset procedure — this chapter is the acceptance checkpoint after the wizard completes.
 
-The 1210CE ships with an **FTD image pre-loaded** on the boot flash. First boot will bring you through the initial setup wizard where you'll:
+You just ran [Ch 3.5](remote-factory-reset.md), the FXOS reimage completed, and the FTD wizard landed you at the `>` prompt. This chapter is the post-reset acceptance checkpoint before you dive into management configuration.
 
-- Set the `admin` password (from the shipped default)
-- Choose management mode (**local** — FDM on-box — or **remote** — FMC / SCC)
-- Configure the management interface
-- Accept the EULA
+## Verify the reset actually happened
 
-## Before you power on
-
-Make sure you have:
-
-- ✅ Serial console access via [ConsolePi](console-access.md) established (telnet ConsolePi.local 9000)
-- ✅ Ethernet cable ready for the **management interface** (usually labeled `MGMT`)
-- ✅ An IP address plan for the management interface (either DHCP or static)
-
-## Power on
-
-Plug in the power cable. The 1210CE will boot within ~2-3 minutes to the initial FTD prompt. On the console:
+At the FTD `>` prompt:
 
 ```
-Firepower login:
+> show version
+Model:    Cisco Secure Firewall 1210CE Threat Defense (86) Version <target>
+UUID:     <NEW UUID>                                          ← must differ from pre-reset UUID
+VDB:      <build>
+
+> show network
+Hostname: firepower                    ← factory default (wizard doesn't prompt)
+DNS:      208.67.222.222, ...          ← Cisco/OpenDNS defaults
+IPv4:     Configuration: DHCP  →  <mgmt-ip> / 255.255.255.0
+Gateway:  <gw>
+MAC:      <mac>                        ← unchanged, hardware MAC
+
+> show managers
+No managers configured.                ← wizard set local-mgmt but no external manager attached
 ```
 
-Default credentials:
+**Three checks that confirm a real reimage** (not an upgrade-in-place or a same-version no-op):
 
-- Username: `admin`
-- Password: `Admin123` (default from Cisco) `[verify against unit — some ship with the serial number as the initial password]`
+1. **UUID changed** — the pre-reset UUID and the post-reset UUID must differ. If they match, `install security-pack` short-circuited with `Firmware Upgrade Message: up-to-date` and you got no reimage. Go back to [Ch 3.5 pre-flight](remote-factory-reset.md#pre-flight-inventory-of-what-s-on-the-fw) and confirm your target version differs from the running version.
+2. **`show network` reports factory-default hostname** `firepower` and Cisco/OpenDNS resolvers — the wizard doesn't prompt for these on 7.6.4, so if you see the custom hostname/DNS you set previously, the reset didn't wipe FTD config.
+3. **`show managers`** returns `No managers configured` — any prior FMC/SCC registration was cleared.
 
-## Initial setup wizard
+If all three check out, the reset is confirmed.
 
-You'll be prompted through several steps:
+## Sanity-check management reachability
 
-### Step 1: Accept the EULA
-
-Scroll through and type `YES` to accept.
-
-### Step 2: Change the admin password
-
-You'll be forced to change the admin password before proceeding. Choose something strong; put it in your password manager.
-
-### Step 3: Configure the management interface
-
-The wizard asks:
-
-- **Do you want to configure IPv4?** — Yes
-- **Do you want to configure IPv6?** — up to you
-- **Configure IPv4 via DHCP or manual?** — for a lab, either works. Manual gives you a predictable IP:
-    - IP address: (e.g., 192.168.1.10)
-    - Netmask: 255.255.255.0
-    - Gateway: 192.168.1.1
-    - DNS: 1.1.1.1 or 8.8.8.8
-
-### Step 4: Choose management mode
-
-Two options:
-
-- **Local (FDM)** — manage via the FDM web UI at `https://<mgmt-ip>` directly
-- **Remote (FMC / SCC)** — device will register to a management center
-
-For this guide, choose **Local (FDM)**. We'll add SCC management later, [after we have a working baseline](scc-onboarding.md).
-
-### Step 5: Firewall mode
-
-Choose **Routed** (Layer 3). This is what you want for a home lab acting as gateway/router.
-
-### Step 6: Complete initial setup
-
-The FW will do a final config apply and return you to a prompt.
-
-## Verify management access
-
-From your workstation on the same subnet as the mgmt interface:
-
-```bash
-ping <mgmt-ip>
-# should respond
-```
-
-Then browse to:
+From your workstation on the same subnet as the mgmt interface, ping the mgmt IP that `show network` reported:
 
 ```
-https://<mgmt-ip>/
+$ ping -c 3 <mgmt-ip>
 ```
 
-You should see the FDM login screen. Log in with `admin` and the password you set in Step 2.
+Should respond. Then browse to `https://<mgmt-ip>/` — you should get the FDM login screen. Log in with `admin` and the password you set during the FXOS forced-password-change.
 
-## First FDM login
+If FDM's cert warning bothers you, that's expected on a fresh reset — the cert is self-signed from FXOS and won't match any hostname. Ch 6 covers replacing it if you want that fixed early.
 
-FDM will run a further setup dialog:
+## Custom configuration deferred to FDM baseline
 
-- **Complete initial setup** — set the outside interface, DNS servers, DHCP servers, etc. (covered in the [FDM baseline chapter](fdm-baseline.md))
-- **Cloud services registration** — Cisco offers integration with cloud services from the very first login; you can defer this and come back to it in [the SCC onboarding chapter](scc-onboarding.md)
-- **Smart licensing** — either register your smart account now, or start the **90-day evaluation** with all features enabled (recommended for lab)
+The 7.6.4 wizard is intentionally minimal — it doesn't prompt for hostname, DNS servers, search domains, proxy, or firewall mode. Everything except IPv4 DHCP/manual and manager-local/remote defaults to sensible values.
 
-Skip / defer whatever you're not ready to configure yet. FDM lets you come back and finish these later.
+You'll set the following via FDM UI in [Ch 6 — FDM baseline](fdm-baseline.md):
+
+- **Custom hostname** (e.g., `fw1210ce.uppernyack.com`)
+- **Custom DNS servers** (e.g., `192.168.1.3` for a local Pi-hole)
+- **Search domains** (e.g., `uppernyack.com`)
+- **Static mgmt IP** (if you want to lock the DHCP-leased address)
+- **NTP servers** (either Cisco defaults or local NTP)
+- **Outside interface** (Ethernet1/1 by default)
+- **Inside interface bridge** (Ethernet1/2 with VLAN1 as default)
+- **Smart licensing** (either register your smart account now, or start the 90-day evaluation)
+
+## Choose your management path
+
+The 1210CE supports four management modes, each with its own onboarding flow. Pick based on the customer / lab scenario:
+
+| Path | Chapter | When to use |
+|---|---|---|
+| **FDM standalone** (Layer 1) | [Ch 6 — FDM baseline](fdm-baseline.md) | Small deployments, POC, home labs. Local management via the on-box FDM UI. |
+| **SCC hybrid** (Layer 2) | [Ch 8 — SCC onboarding](scc-onboarding.md) | Devices managed centrally by Cisco Security Cloud Control with local FDM as fallback. |
+| **cdFMC** (Layer 3) | [Ch 5 — Choose management path](choose-mgmt-path.md#l3-cloud-delivered-fmc-cdfmc) | Cloud-delivered FMC for large multi-tenant deployments. |
+| **FMCv** (Layer 3) | [Ch 5 — Choose management path](choose-mgmt-path.md#l3-fmcv) | On-premises Firewall Management Center virtual appliance for full-featured management. |
+
+Not sure which fits? Read [Ch 5 — Choosing your management path](choose-mgmt-path.md) — it has the decision matrix and criteria.
 
 ## Common first-boot issues
 
-**Console shows garbled text on first boot.** Some 1210CE units ship with a serial baud mismatch on the initial boot menu — try `Ctrl-A K` to detach if using `screen`, then reconnect. Occasionally power-cycling helps.
+**FDM UI shows a `Setup did not complete` banner after login.** The wizard ran but the FTD hasn't finished expanding its policy engine (usually within 2-3 min after the `>` prompt appears). Refresh the browser after a minute; the banner should clear.
 
-**Password not accepted.** If `Admin123` is rejected, try the unit's serial number (found on the pull-out tag on the front). Cisco has shipped both defaults on different production batches.
+**Mgmt IP is unexpected / on the wrong subnet.** The wizard used DHCP — you got whatever the upstream DHCP server offered. If that's not the subnet you wanted, either:
 
-**Wizard doesn't complete.** If the initial setup wizard errors out mid-way, you can restart it from the FTD CLI:
+1. Change the upstream DHCP scope or move the mgmt cable to the right port, then reboot the FW to re-lease.
+2. Set a static IP via FTD CLI: `> configure network ipv4 manual <ip> <netmask> <gw>`.
+3. Set a static IP via FDM UI in [Ch 6 — FDM baseline](fdm-baseline.md).
 
-```
-> configure manager local
-```
+**Can't reach FDM from workstation.** Confirm:
 
-...which resets the device to `local` (FDM) management mode. Then re-run the setup:
+- Workstation is on a subnet with a route to the mgmt IP.
+- Any intermediate firewall rules allow TCP 443 to the mgmt IP.
+- Mgmt interface has `Link: up` in `show network`.
 
-```
-> reboot
-```
-
-...and go back through the wizard on the next boot.
+**Wizard prompted for password but didn't take it.** The FXOS-side login prompts for password ONCE (forced change). The FTD side does NOT prompt for password on `connect ftd` — the FXOS admin credential is inherited. If you see a "password" prompt inside FTD's flow, it's likely an FTD sub-command prompt (e.g., `configure network dns` might ask for confirmation), not a wizard prompt.
 
 ## Next
 
-Head to [FDM baseline — interfaces + routing](fdm-baseline.md) to configure the outside/inside interfaces and get the FW routing traffic.
+Head to [Ch 6 — FDM baseline](fdm-baseline.md) for FDM-standalone deployments, or [Ch 5 — Choose your management path](choose-mgmt-path.md) if you're still deciding.
