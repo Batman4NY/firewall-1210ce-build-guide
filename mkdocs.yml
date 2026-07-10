@@ -67,6 +67,7 @@ nav:
     - Console access via ConsolePi: console-access.md
     - Remote factory reset — FXOS reimage: remote-factory-reset.md
     - First boot and initial config: first-boot.md
+    - FTD upgrade via FDM API: upgrade.md
   - Choose your path:
     - Choosing your management path: choose-mgmt-path.md
   - FDM standalone:
