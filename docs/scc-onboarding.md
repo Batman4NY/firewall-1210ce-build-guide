@@ -93,14 +93,18 @@ No devices or services found. You must onboard a device or service to get starte
 
 Click the **`+`** button (top-right corner of the devices table). SCC opens the **Onboard FTD Device** wizard.
 
-The wizard's first panel is exclusively titled **"Enable cdFMC"** for Base-tier tenants — click it. cdFMC provisioning begins:
+The wizard's first panel is exclusively titled **"Enable cdFMC"** for Base-tier tenants — click it. cdFMC provisioning begins.
 
-- **Duration:** typically 15-30 min for Base tier (Cisco doesn't commit a hard SLA)
+Cisco's own UI (the info-tooltip on the `Provisioning` status) states:
+
+> *"This process will take 15 to 30 minutes to complete."*
+
 - **Behavior during provisioning:** you can navigate away; cdFMC access unlocks when ready
-- **Signal it's done:** notification bell + email; **Firewall Management** entry appears in the app switcher
+- **Where to see progress:** SCC → **Integrations → FMC** tab shows the new entry with `Status: Provisioning` · `Version: N/A` · `Devices: 0`
+- **Signal it's done:** the Status column flips from `Provisioning` to the ready state; a notification bell + email typically follow
 
-!!! info "Field TBD — captured on next iteration"
-    The exact wall-clock provisioning time and any region-selection prompts are being captured in this reference session. Empirical timing will replace this callout in the next commit.
+!!! info "Provisioning happens on Cisco's cloud infrastructure"
+    You're not blocking on your box during this — the FTD isn't touched at all until Step 3. The 15-30 min wait is Cisco spinning up your dedicated cdFMC instance in the cloud region you selected in Step 0.
 
 ## Step 2 — Add Device wizard (in cdFMC)
 

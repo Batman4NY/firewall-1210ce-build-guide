@@ -212,6 +212,53 @@ That's Ctrl-A followed by lowercase `d` (not Ctrl-D). If you're in picocom on to
 | Picocom stuck, `Ctrl-A Ctrl-X` doesn't respond | Kill the picocom process from ConsolePi over SSH: `sudo pkill picocom`. Then relaunch via `consolepi-menu` |
 | Ctrl-U + \r still gets nothing | Only ONE process can hold `/dev/ttyUSB0`. If picocom is running, ser2net is locked out (and vice-versa). Verify with `pgrep -a picocom` + `sudo fuser /dev/ttyUSB0` on ConsolePi |
 
+## Layer 0 stays active across every management model
+
+The ConsolePi + ser2net + FTDI setup you just built isn't just for the Ch 4 first-boot walkthrough. It's a **permanent Layer 0 investment** that keeps working regardless of which management model owns the box.
+
+The physical UART on the FTD's RJ45 console port runs BELOW every management-plane software layer (FDM, cdFMC, on-prem FMC, FMCv). Console access is provided by the FTD kernel + UART hardware; it doesn't ask a manager for permission to answer keystrokes.
+
+### What still works via console across every management transition
+
+| Console operation | FDM only | FDM + SCC hybrid | cdFMC-managed | On-prem FMC | FMCv |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Login as `admin` with the OpenBao-stored password | ✅ | ✅ | ✅ | ✅ | ✅ |
+| FTD `>` prompt — `show version`, `show network`, `show interfaces` | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `system support diagnostic-cli` → ASA-like CLI, packet-tracer, capture | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `configure network ipv4 manual …` for mgmt IP recovery | ✅ | ✅ | ⚠️ next-deploy may overwrite | ⚠️ next-deploy may overwrite | ⚠️ next-deploy may overwrite |
+| FXOS access via `connect fxos` (SSH) or `exit` from FTD `>` (console) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `show tech-support` for TAC bundles | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **`configure manager delete`** — break-glass "get me back to FDM" | n/a | ✅ | ✅ | ✅ | ✅ |
+| Password reset via console + Admin123 recovery | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Watching boot messages during a reboot | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+### Why the investment matters more post-cdFMC (or any cloud manager)
+
+Two new failure modes appear the moment you delegate management to the cloud:
+
+1. **Manager unreachable** — cloud outage, tenant issue, network path broken. The FTD's data plane keeps forwarding traffic, but you can't change policy from the cloud pane. Console is your ONLY inspection + emergency-modify path.
+2. **Manager endpoint migration** — SCC / cdFMC endpoints occasionally shift as Cisco rolls out infrastructure changes. sftunnel can break silently — the console is where you see the sftunnel logs and can act on them before the customer notices.
+
+For a customer engagement, the "we set up ConsolePi + ser2net once in Ch 3" work becomes a **permanent break-glass path** — pays off every time the cloud manager has a bad day.
+
+### What's DIFFERENT on the console after moving to a cloud manager
+
+Nothing dramatic. Three subtle behaviors worth knowing:
+
+1. **`show running-config`** reflects the manager-pushed policy, not what FDM would have authored locally. Objects show up with cloud-generated names.
+2. **`> configure ...`** commands that would conflict with manager-owned config may print `"Device is managed by external manager"` warnings — cloud-owned config resists local edits. Local overrides may last until next deploy, then get wiped.
+3. **FDM UI** (the HTTPS side) shows a **"Managed by cdFMC"** banner and turns most policy edits read-only. That's a UI-side thing; console CLI stays open and works.
+
+### The break-glass sequence (when everything else is broken)
+
+If a cloud manager becomes permanently unreachable and you need to cut the box back to FDM standalone:
+
+```
+> configure manager delete
+```
+
+That severs the sftunnel and returns the FTD to standalone mode. Policy authored by the cloud manager stays on the box until the next deploy — which now has to come from FDM after you log back into the on-box FDM UI. See [Ch 3.5](remote-factory-reset.md) if you want a full clean slate instead of the delete.
+
 ## Next
 
 Head to [First boot and initial config](first-boot.md) to power the 1210CE on and run through the initial setup.
