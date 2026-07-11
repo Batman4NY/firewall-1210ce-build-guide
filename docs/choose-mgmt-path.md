@@ -45,11 +45,15 @@ Think of management as four layers stacked on top of the same FTD image. You can
 !!! success "✅ Layer 1 — FDM standalone (CURRENT)"
     The box manages itself. `https://192.168.1.161/`, `admin` account, everything local. This is what you have right now, coming out of [Ch 4 — First boot](first-boot.md). Full FTD feature set is available, no cloud dependency, no license server round-trips beyond the 90-day eval or your Smart Account. The ceiling: one device, one pane, no orchestration.
 
-!!! tip "⏭️ Layer 2 — FDM + SCC (NEXT)"
-    Same FDM you're using now, plus the box **also** registers to **SCC**. Config still authored in FDM; SCC gives you the cloud inventory, out-of-band change tracking, template-based deployment across multiple devices, and a single audit trail. FDM remains the source of truth for this device's running config. This is the path we're taking next, in [Ch 9 — SCC onboarding](scc-onboarding.md).
+!!! tip "⏭️ Layer 2 — FDM + SCC (LEGACY / PREMIER TIER ONLY)"
+    Same FDM you're using now, plus the box **also** registers to **SCC**. Config still authored in FDM; SCC provides cloud inventory + change tracking + template-based deployment + audit trail. FDM stays authoritative for policy.
 
-!!! note "⏳ Layer 3 — cdFMC (queued after Layer 2)"
-    Full manager migration. Use **FMT** to translate the FDM policy into a cdFMC-native policy, cut over, and retire FDM as the manager. From this point on, FDM is read-only on the box — every knob goes through cdFMC. Gets you full FMC feature depth (correlation rules, deep IPS tuning, multi-device policy inheritance) without running your own VM.
+    **Verified 2026-07-11 on a fresh SCC tenant with Firewall Management _Base_ subscription:** the modern SCC "Add Device → FTD" flow surfaces **cdFMC-only** onboarding. FDM-hybrid mode is NOT offered at Base tier — it requires **Firewall Management _Premier_ tier** or the legacy pre-Security-Cloud-Control CDO console. If your customer's tenant is Base tier, plan for Layer 3 (cdFMC); if Premier or legacy CDO, Layer 2 is still available.
+
+    See [Ch 9 — SCC onboarding](scc-onboarding.md) for the tier-specific decision tree.
+
+!!! note "⏭️ Layer 3 — cdFMC (NEXT — the arc destination at Base tier)"
+    Full manager migration to **Cloud-delivered Firewall Management Center**. FDM becomes read-only for policy; every knob goes through cdFMC. Gets you full FMC feature depth (correlation rules, deep IPS tuning, multi-device policy inheritance) without running your own VM. This is what the SCC-owned FTD lifecycle actually looks like at Base subscription tier.
 
 Layer 4 — **FMCv on your own Debian/KVM host** — is the "I want to own the whole stack" option. Same feature set as cdFMC, no Cisco cloud tenancy, but you now own patching, backups, and HA for the manager itself. Out of scope for this guide's plan of record, but the comparison matrix below covers it so you can see the tradeoff.
 
@@ -126,7 +130,7 @@ Layer 4 — **FMCv on your own Debian/KVM host** — is the "I want to own the w
 The lab is going to walk every layer above Layer 0, in order, so you (and any customer you're mirroring) see the full lifecycle end-to-end:
 
 - [x] **Step 1 — FDM standalone.** ✅ **Done.** This is where you are right now. FDM is authoritative, no cloud attachments. Continues through [Ch 6 — FDM baseline](fdm-baseline.md), [Ch 7 — Security policies](security-policies.md), [Ch 8 — Talos intel](talos-intel.md).
-- [ ] **Step 2 — Onboard to existing SCC tenant.** ⏭️ **Next.** Register `fw1210ce` to the Salient SCC tenant. Config stays on-box; SCC gets an inventory entry and a change log. See [Ch 9 — SCC onboarding](scc-onboarding.md).
+- [ ] **Step 2 — Onboard to SCC via cdFMC provisioning.** ⏭️ **Next.** Enable cdFMC in the target SCC tenant, then register `fw1210ce` to the provisioned cdFMC instance. FDM becomes read-only for policy. See [Ch 9 — SCC onboarding](scc-onboarding.md). Note: FDM-hybrid onboarding (config still authored locally) requires SCC Premier tier or legacy CDO console — not available at Base tier.
 - [ ] **Step 3 — FMT migration to cdFMC.** ⏳ **Queued after Step 2.** Run the Firewall Migration Tool, translate the FDM policy into cdFMC, cut over. FDM becomes read-only. See [Ch 10 — Managing via SCC](scc-managed.md).
 - [ ] **Step 4 — Factory reset back to Layer 1.** ⏳ **Available anytime.** Documented so the reader knows the "walk away" path exists and what it costs. See [Ch 15 — Troubleshooting](troubleshooting.md).
 
