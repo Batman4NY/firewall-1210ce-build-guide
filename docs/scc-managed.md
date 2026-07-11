@@ -270,27 +270,134 @@ The `<slug>--<hash>.app.us.cdo.cisco.com` hostname grammar (this tenant: `1210ce
 
 ## Step 1 — Mint the API token
 
-### (a) API-Only User — recommended for automation
+!!! danger "BLOCKED on 2026-07-11 — Base-tier Firewall Manager API token minting has no working UI path on this tenant"
+    Empirical dead-end reached during the reference-lab walkthrough. Every UI path documented by Cisco for minting a Firewall-Manager-scoped API token either doesn't exist in the 2026 SCC UI, or exists but doesn't offer the necessary product scope. TAC case opened; the outcome will determine whether this section documents a working flow or a Base-tier limitation.
 
-Use this for the build's non-human credential. Do this once at build time.
+    See below for the exhaustive check + the TAC case draft in [captures/ch10-tac-case-draft-2026-07-11.md](../captures/ch10-tac-case-draft-2026-07-11.md).
 
-1. Log in to SCC as a Super Admin at `https://1210ce-lab--ti0cqk.app.us.cdo.cisco.com`.
-2. **Settings → User Management → `+`** (add user).
-3. In the dialog: give the user a name, check **API Only User**, assign a role.
-4. Click **Generate API Token** → **Copy API Token**. Save it out-of-band immediately — it is displayed once.
+### Two token surfaces exist — only one is Firewall-Manager-scoped
 
-Available roles: Super Admin, Admin, Read-Only, Edit-Only, Deploy-Only, VPN Sessions Manager.
+Per Cisco DevNet docs research, SCC has two separate token-minting surfaces:
 
-Source: [DevNet — SCC Authentication](https://developer.cisco.com/docs/cisco-security-cloud-control/authentication/).
+| Surface | Menu path | Product scope offered | Authorizes |
+|---|---|---|---|
+| **SCC Platform API** | `Platform Management → API Keys` | Only `Security Cloud Control` | `/orgs`, `/subscriptions`, `/users`, `/admin-groups` — SCC platform metadata |
+| **SCC Firewall Manager API** | (Cisco docs say `Administration → API User Management`, but this menu is NOT present in Base-tier 1210CE-Lab UI) | Should offer `Firewall Management` roles like `Super Admin`, `Admin`, `Edit-Only`, `Read-Only`, `Deploy-Only`, `VPN Sessions Manager` | Everything under `/firewall/*` including the `/cdfmc/api/fmc_config` proxy path — the actual cdFMC REST surface |
 
-### (b) Personal user token — ad-hoc / interactive use
+The reference-lab walkthrough attempted to mint a token from the first surface and used it against Firewall Manager endpoints — every request returned HTTP 400 (not 401) at the SCC gateway. The gateway recognizes the token but refuses to route it to the Firewall Manager backend because the token has no Firewall Manager scope.
 
-1. Log in to SCC as your normal user.
-2. Username (top right) → **Preferences** → **General Preferences**.
-3. **My Tokens** → **Generate API Token**. Copy immediately; visible only while you remain on the page.
-4. **Refresh Token** issues a new one and invalidates the old.
+### Reference-lab attempt — Platform Management → API Keys
 
-Source: [docs.defenseorchestrator.com — Generate an API Token](https://docs.defenseorchestrator.com/cdfmc/t-generatean-api-token.html).
+For anyone reproducing our steps:
+
+1. In SCC left nav, click `Platform Management` → `API Keys`.
+
+    ![SCC API Keys page — empty state](img/ch10-api-scc-api-keys-empty.png)
+    *Empty state before minting the first key.*
+
+2. Click `Generate API key`. A right-side panel opens.
+
+    ![Generate API Key panel — empty](img/ch10-api-generate-key-form.png)
+    *Key name, Description, Key expiry, and Assign Roles section.*
+
+3. Fill in Details: `Key name = fw1210ce-guide-api`, description, `Never Expires`.
+4. In `Assign Roles`, the `Product or service` dropdown ONLY offers `Security Cloud Control`. There is no `Firewall Management` option to select.
+
+    ![Generate API Key panel — filled with SCC-only scope](img/ch10-api-generate-key-filled.png)
+    *`Security Cloud Control` selected as Product, `Organization Administrator` as Role. `Application scope` is disabled (org-level roles are automatically scoped).*
+
+5. Click `Generate`. The token is displayed with its Access Token (JWT) and Refresh Token. Save immediately — displayed once.
+
+    ![API Keys list after generation](img/ch10-api-keys-list-with-key.png)
+    *The generated key appears in the list with `Status: Enabled`, its Key ID (matches the JWT's `cis_uuid` claim), and a three-dot menu offering `View Details / Disable / Delete`.*
+
+### Empirical exhaustive check — the Firewall-Manager-scope UI does not exist on this tenant
+
+**Path 1: `Platform Management → Administrator Access → + Invite`** — this opens a wizard to invite HUMAN users only, with fields for First Name / Last Name / Email. No `API Only User` checkbox in any of its three steps (User details / Add to groups / Assign roles):
+
+![Administrator Access — Invite Administrator Users wizard, Step 1](img/ch10-api-invite-wizard-step1.png)
+*Only human-user fields. No API-only checkbox.*
+
+**Path 2: `Platform Management → Administrator Access → Admin groups → All Products Administrator → Add users`** — same human-user invite flow. The group itself carries `Firewall Management: Super Administrator` and `Multicloud Defense: Administrator`, but users added to it are humans, not machine credentials:
+
+![All Products Administrator group detail](img/ch10-api-all-products-admin-group.png)
+
+**Path 3: `Platform Management → Administrator Access → Admin roles`** — this is a catalog of roles per product, viewable/filterable but not a token-creation UI:
+
+![Admin roles catalog](img/ch10-api-admin-roles-catalog.png)
+*Roles per product visible: Firewall Management, Multicloud Defense, Security Cloud Control. Cannot create API-only user from this tab.*
+
+**Path 4: cdFMC → username dropdown → `User Preferences`** — Cisco DevNet's older docs describe this as the API token generation path. In the 2026 cdFMC UI on this tenant, it only offers Time Zone. No `My Tokens`, no `Generate API Token`.
+
+### JWT payload of the SCC Platform token — for reference
+
+The token minted from `Platform Management → API Keys` is a signed JWT with these public claims (decoded from base64url, sensitive `private` field omitted):
+
+```json
+{
+  "iss": "https://idbroker-b-us.webex.com/idb",
+  "token_type": "Bearer",
+  "user_type": "machine",
+  "machine_type": "bot",
+  "cluster": "P0A1",
+  "org_id": "<tenant-org-UUID>",
+  "cis_uuid": "<matches the SCC API Key ID>",
+  "expiry_time": 1783844752511,
+  "exp": 1783844752511
+}
+```
+
+**Notes:**
+
+- Issuer is `idbroker-b-us.webex.com/idb` — Cisco's Webex Common Identity broker, the unified auth backend across Cisco products.
+- `cis_uuid` claim matches the Key ID column shown in SCC's API Keys list. Useful when correlating a token to its origin.
+- `expiry_time` and `exp` are both present even though the SCC UI radio button was set to `Never Expires`. The token does have an exp claim — the "Never Expires" label appears to mean "no exp set at creation time" in SCC's model, but the actual JWT is issued with an exp based on the identity broker's defaults. **This is a discrepancy worth flagging** — long-term automation shouldn't assume Never-Expires tokens actually never expire.
+
+### TAC case opened
+
+The reference-lab tenant has a case open with Cisco TAC asking:
+
+1. Is Firewall Manager API access included in Base tier?
+2. If not, what tier / add-on unlocks it?
+3. Are the docs describing `Administration → API User Management` still authoritative for 2026 tenants, or has that page moved?
+
+Full draft at [captures/ch10-tac-case-draft-2026-07-11.md](../captures/ch10-tac-case-draft-2026-07-11.md).
+
+This section will be replaced with the working token-mint flow (or the confirmed tier requirement) once TAC responds.
+
+### If your tenant DOES have the path — how to use the resulting token
+
+If your tenant surfaces the `API User Management` (or equivalent) page and you can mint a Firewall-Manager-scoped token, the URLs Cisco documents are:
+
+```bash
+# Regional gateways (SCC public-API region, not AWS region):
+# US:  https://api.us.security.cisco.com/firewall
+# EU:  https://api.eu.security.cisco.com/firewall
+# APJ: https://api.apj.security.cisco.com/firewall
+# AU:  https://api.au.security.cisco.com/firewall
+
+# All calls carry:
+#   Authorization: Bearer <TOKEN>
+#   Accept: application/json
+
+# Verify token:
+curl --url https://api.us.security.cisco.com/firewall/v1/token \
+     --header "Authorization: Bearer $API_TOKEN" \
+     --header "Accept: application/json"
+
+# List cdFMC managers (returns fmcDomainUid needed for FMC config calls):
+curl --url 'https://api.us.security.cisco.com/firewall/v1/inventory/managers?q=deviceType:CDFMC' \
+     --header "Authorization: Bearer $API_TOKEN" \
+     --header "Accept: application/json"
+```
+
+See [Step 4 — Round-trip deploy](#step-4-round-trip-deploy) for the full endpoint sequence.
+
+## Step 1B — WHY the SCC Platform token doesn't reach cdFMC
+
+The SCC gateway rewrites `/firewall/*` paths to an internal `/api/rest/*` path (visible in every 400 response body's `path` field). It does this via a component named `scc-gateway` in the URL trace. When the gateway checks the token's product scope against the requested backend service, tokens minted with only `Security Cloud Control` scope fail the check for the Firewall Manager backend — resulting in HTTP 400 rather than 401 or 403.
+
+This is architecturally sensible (least-privilege enforcement at the API gateway) but the 400-versus-403 error code choice makes debugging harder — a 403 would immediately telegraph "wrong scope" while 400 sends readers hunting for URL typos.
 
 ### Verify the token — first API call
 
