@@ -68,25 +68,29 @@ Reasonable to do the baseline in an evening and layer integrations on over subse
 
 ## Chapter status
 
+Status extracted from each chapter's opening admonition, cross-checked against actual file content and live-capture commits (last update: 2026-07-11).
+
 | # | Chapter | Status |
 |---|---|---|
 | 1 | [Overview](index.md) | 📝 Draft |
-| 2 | [Bill of materials](bill-of-materials.md) | 📝 Draft |
+| 2 | [Bill of materials](bill-of-materials.md) | 📝 Draft — baseline complete; SKU + rack accessories still being iterated |
 | 3 | [Console access via ConsolePi](console-access.md) | ✅ Complete |
-| 4 | [First boot and initial config](first-boot.md) | 📝 Draft |
-| 5 | [Choosing your management path](choose-mgmt-path.md) | 📝 Draft |
-| 6 | [FDM baseline — interfaces + routing](fdm-baseline.md) | ⚠ WIP |
-| 7 | [Security policies — access + IPS + URL](security-policies.md) | ⚠ WIP |
-| 8 | [Talos intel + updates](talos-intel.md) | ⚠ WIP |
-| 9 | [Onboarding to Security Cloud Control](scc-onboarding.md) | ⚠ WIP |
-| 10 | [Managing via SCC](scc-managed.md) | ⚠ WIP |
-| 11 | [Duo MFA on FDM/SCC](duo-integration.md) | ⚠ WIP |
-| 12 | [Umbrella SASE tunnel](umbrella-integration.md) | ⚠ WIP |
-| 13 | [ThousandEyes on the FW](thousandeyes-integration.md) | ⚠ WIP |
-| 14 | [Licensing — eval to production](licensing.md) | 📝 Draft |
-| 15 | [Troubleshooting](troubleshooting.md) | ⚠ WIP |
+| 3.5 | [Remote factory reset](remote-factory-reset.md) | ✅ Complete — includes the FXOS reimage flow used as the standard reset path |
+| 3.7 | [FTD upgrade — in-place](upgrade.md) | ✅ Complete — live-captured 2026-07-10 |
+| 4 | [First boot verification](first-boot.md) | ✅ Complete — rewritten 2026-07-10 after live capture |
+| 5 | [Choosing your management path](choose-mgmt-path.md) | 📝 Draft — SCC subscription-tier finding integrated |
+| 6 | [FDM baseline — interfaces + routing](fdm-baseline.md) | ✅ Complete — live-captured 2026-07-10 |
+| 7 | [Security policies — access + IPS + URL](security-policies.md) | ✅ Complete — live-captured 2026-07-10 including strong-crypto trap |
+| 8 | [Talos intel + updates](talos-intel.md) | ✅ Complete — live-captured 2026-07-10; cdFMC-supersession callout added 2026-07-11 |
+| 9 | [Onboarding to Security Cloud Control](scc-onboarding.md) | ✅ Live-captured 2026-07-11 · 12 screenshots · Task Manager CSV · full state machine + retry gotcha |
+| 10 | [Managing via cdFMC](scc-managed.md) | 🚧 Partial — UI walkthrough + REST research complete; API round-trip Step 4 blocked on TAC case for Firewall Manager API access on Base tier (see [captures/ch10-tac-case-draft-2026-07-11.md](https://github.com/Batman4NY/firewall-1210ce-build-guide/blob/main/captures/ch10-tac-case-draft-2026-07-11.md)) |
+| 11 | [Duo MFA on FDM/SCC](duo-integration.md) | ⚠ WIP — outline only |
+| 12 | [Umbrella SASE tunnel](umbrella-integration.md) | ⚠ WIP — outline only |
+| 13 | [ThousandEyes on the FW](thousandeyes-integration.md) | ⚠ WIP — outline only |
+| 14 | [Licensing — eval to production](licensing.md) | 📝 Draft — prose stable; live captures + FDM 7.6 UI paths pending |
+| 15 | [Troubleshooting](troubleshooting.md) | ⚠ WIP — outline plus specific 2026-07-11 gotchas from Ch 9/10 walkthrough |
 
-Legend: **✅ complete** — ready to follow · **📝 draft** — skeleton with real content · **⚠ WIP** — placeholder / outline only
+Legend: **✅ complete** — ready to follow · **📝 draft** — real content with known-open items · **🚧 partial** — substantial content but explicit blocker · **⚠ WIP** — outline / placeholder only
 
 ## Feedback
 

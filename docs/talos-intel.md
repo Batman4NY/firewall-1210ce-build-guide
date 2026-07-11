@@ -5,6 +5,13 @@
 
 Cisco Talos is the threat-intel back-end for FTD's IPS, URL filtering, malware detection, and geolocation. This chapter is about pulling that intel down and keeping it fresh via the FDM REST API.
 
+!!! info "For FDM-standalone deployments only — cdFMC-managed FTDs handle Talos content automatically"
+    This chapter's FDM-API-driven flow (auth against `/api/fdm/latest/fdm/token`, per-device `POST /operational/deploysrundata`, etc.) applies to FTDs managed **standalone via FDM**. Once a device is onboarded to cdFMC ([Ch 9](scc-onboarding.md)), the FDM API surface for content updates goes read-only.
+
+    Empirically captured on the reference lab 2026-07-11 via cdFMC's Task Manager CSV export (see [`captures/ch9-ch10-task-manager-report-2026-07-11.csv`](https://github.com/Batman4NY/firewall-1210ce-build-guide/blob/main/captures/ch9-ch10-task-manager-report-2026-07-11.csv)): cdFMC ran its own Talos content installs on itself before onboarding began (GeoDB-2026-06-20-081, VDB-433, LSP 20260708, SRU 2026-07-08-001), and then pushed all four packages to `fw1210ce` as part of the auto-triggered `Deploy_Job_1` at 09:03-09:06 EDT — no per-device API call from us. cdFMC-managed FTDs get their Talos content from cdFMC's own content cache on every deploy, not from a per-device FDM push.
+
+    If you're using cdFMC, treat this chapter as "the pre-cdFMC flow" for context and skip to [Ch 10 Step 5](scc-managed.md#step-5-understanding-configuration-status) for the cdFMC-managed content behavior.
+
 ## What Talos feeds into the FW
 
 - **VDB** — Vulnerability Database. The AppID + navlgo signatures used by app-identification (name-your-web-app filtering) + IPS reference lookup.
@@ -249,6 +256,7 @@ Empirical total wall-clock on the reference box: **~6 minutes** for all three wh
 - [Ch 3.7 FTD upgrade](upgrade.md) — FTD version has to match VDB compatibility floor for content updates to install
 - [Ch 6 FDM baseline](fdm-baseline.md) — the deploy pattern used after SRU
 - [Ch 7 Security policies](security-policies.md) — where the fresh SRU rules actually get applied via IPS policies on access rules
+- [Ch 10 Managing via cdFMC](scc-managed.md) — how Talos content sync moves to cdFMC once the device is cdFMC-managed
 - [Ch 14 Licensing](licensing.md) — Smart Licensing state gates all update entitlement
 
 ## Next

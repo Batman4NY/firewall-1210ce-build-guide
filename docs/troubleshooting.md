@@ -1,9 +1,9 @@
 # Troubleshooting
 
-!!! warning "⚠ WIP"
-    Placeholder chapter with outline only. Content to be written as the lab is built. Feedback and PRs welcome.
+!!! warning "⚠ WIP — being backfilled with empirical gotchas from live capture sessions"
+    Chapter outline plus specific gotchas encountered during 2026-07-10 (Ch 3-8 baseline) and 2026-07-11 (Ch 9-10 SCC/cdFMC) live-build sessions. Every entry cross-references the chapter and screenshot where the issue was first captured. Feedback and PRs welcome.
 
-**Symptoms are grouped by build phase.** Jump to the phase that matches when the issue appeared: [Console](#console-shows-nothing-after-power-on) · [First boot / FDM reachability](#cannot-reach-fdm-after-first-boot) · [Deploy](#deploy-fails) · [Talos updates](#talos-updates-not-pulling) · [URL filtering](#url-filtering-not-blocking-test-urls) · [SCC onboarding](#scc-onboarding-fails) · [Duo](#duo-login-loop) · [Umbrella](#umbrella-tunnel-down) · [ThousandEyes](#thousandeyes-agent-not-registering) · [Nuclear reset (Ch 3.5)](remote-factory-reset.md).
+**Symptoms are grouped by build phase.** Jump to the phase that matches when the issue appeared: [Console](#console-shows-nothing-after-power-on) · [First boot / FDM reachability](#cannot-reach-fdm-after-first-boot) · [Deploy](#deploy-fails) · [Talos updates](#talos-updates-not-pulling) · [URL filtering](#url-filtering-not-blocking-test-urls) · [SCC/cdFMC onboarding](#sccdfmc-onboarding-fails) · [SCC/cdFMC after onboarding](#sccdfmc-after-onboarding) · [Duo](#duo-login-loop) · [Umbrella](#umbrella-tunnel-down) · [ThousandEyes](#thousandeyes-agent-not-registering) · [Nuclear reset (Ch 3.5)](remote-factory-reset.md).
 
 Organized by symptom. Find your symptom, walk the checks, skip to next if not applicable.
 
@@ -25,7 +25,21 @@ Fastest triage is the FTDI + RJ45 primary path — it isolates cable-quality iss
 
 ## Deploy fails
 
-**Fill in:** common deploy errors, rule compilation issues, object dependency conflicts.
+### Strong-crypto trap on eval Smart License
+
+Captured on 2026-07-10 during Ch 7 policy authoring on the reference lab. FDM deploy fails when the FTD is running in Smart License **evaluation** mode with `exportControl:null` — even if `Threat`, `Malware`, and `URL License` entitlements are all enabled.
+
+**Signature on the FDM side:** deploy job returns a policy-validation failure referencing strong encryption or export-controlled features.
+
+**Root cause on the reference lab:** the FTD was registered to CSSM but the registration token did NOT have "Allow export-controlled functionality" checked, leaving `exportControl:null`. Effectively equivalent to eval-mode: strong-crypto features are unauthorized.
+
+**Fixes** (any one resolves it):
+
+- Re-register the FTD with a Smart Software Manager token that has "Allow export-controlled functionality" checked
+- Author policy that avoids strong-crypto features (no S2S VPN with AES, no RA VPN with SSL, no strong TLS decryption ciphers)
+- Move to cdFMC management ([Ch 9](scc-onboarding.md)) — the same trap surfaces at the cdFMC level per [Ch 10 Step 6](scc-managed.md#step-6-strong-crypto-where-the-gate-lives-once-cdfmc-owns-the-box), but the license state moves to cdFMC's virtual account, which may already be registered with export-controlled entitlement in your customer engagement
+
+See [Ch 7 → Strong-crypto trap section](security-policies.md) for the full empirical narrative + Cisco doc source citations.
 
 ## Talos updates not pulling
 
@@ -40,9 +54,80 @@ Fastest triage is the FTDI + RJ45 primary path — it isolates cable-quality iss
 - Test URL is in a blocked category (verify against Talos categorization)
 - HTTPS traffic requires SSL decryption for full URL visibility
 
-## SCC onboarding fails
+## SCC/cdFMC onboarding fails
 
-**Fill in:** common SCC onboarding errors — expired tokens, network reachability, smart license state.
+The specific gotchas below were captured empirically during the reference-lab onboarding on 2026-07-11. See [Ch 9 — SCC onboarding](scc-onboarding.md) for the full walkthrough.
+
+### `Registration timed out` in cdFMC Task Manager
+
+Captured verbatim from cdFMC's Task Manager CSV export ([captures/ch9-ch10-task-manager-report-2026-07-11.csv](https://github.com/Batman4NY/firewall-1210ce-build-guide/blob/main/captures/ch9-ch10-task-manager-report-2026-07-11.csv), 2026-07-11):
+
+```
+Register  fw1210ce: Registration timed out. Please check connectivity and registration id
+          Category: Register  Status: FAILURE  Duration: 2m 6s
+```
+
+**Root cause on the reference lab:** the first `configure manager add` attempt on the FTD was interrupted before the `yes/no` confirmation was answered. cdFMC's own 2-minute registration timer expired before the FTD ever initiated the outbound sftunnel.
+
+**Fix:** the SCC-side registration key is NOT invalidated by this timeout. Re-fire the same `configure manager add` command on the FTD (with the `yes` confirmation this time), and cdFMC accepts the retry cleanly. See [Ch 9 Step 3a](scc-onboarding.md#3a-ftd-side-poll-show-managers) for the callout.
+
+### FTD's `show managers` stuck at `In progress` past 15 minutes
+
+The reference lab went from `configure manager add` to `Registration : Completed` in ~4 minutes. Cisco docs cite up to 15 min.
+
+If `In progress` persists past ~15 minutes:
+
+- Verify outbound HTTPS from the FTD mgmt IP to the cdFMC hostname:
+  ```
+  > ping system 1210ce-lab--ti0cqk.app.us.cdo.cisco.com count 3
+  ```
+- Confirm the registration key from Ch 9 Step 2d has not been regenerated on the SCC side (each regeneration invalidates the previous one)
+- Check the cdFMC Task Manager (bell icon → Tasks tab) for a specific error string — Cisco's error strings there are more actionable than the FTD-side `In progress` state
+
+### SCC "All" tab shows `Not Synced` for a Synced device
+
+The `Configuration Status` column on the SCC Security Devices page's **All** tab can lag the truthful state by up to 10 minutes per [Cisco's documented propagation window](https://developer.cisco.com/docs/cisco-security-cloud-control-firewall-manager/cdfmc-managed-ftds-only-deploy-ftd-device-changes/). Reference lab observed 23 minutes of lag on 2026-07-11.
+
+**Fix:** click the **FTD** tab (sibling to All) — the FTD-tab reads directly from cdFMC and shows the authoritative state. See [Ch 9 Step 3b-1](scc-onboarding.md#3b-1-the-all-tab-and-the-ftd-tab-disagree-and-why) for the full analysis with screenshots.
+
+### "Health Warning" on cdFMC — `hmdaemon exited N time(s)`
+
+Captured from Task Manager on 2026-07-11:
+
+```
+Health  1210ce-lab--ti0cqk  Process Status  hmdaemon exited 5 time(s).  WARNING
+```
+
+The device in this warning is **cdFMC's own management appliance** (`1210ce-lab--ti0cqk`), NOT `fw1210ce`. `hmdaemon` is the Health Monitor daemon running on cdFMC. Typically benign transient (auto-recovers). Only escalate to TAC if the count keeps climbing over days.
+
+## SCC/cdFMC after onboarding
+
+### `Deployment Notes: Deployment after re...` — what is Deploy_Job_1?
+
+cdFMC auto-triggers an initial policy deploy as part of onboarding, without any user action. The reference lab captured `Deploy_Job_1` — `Deployed by: System` — completing in 3m 23s at 09:03-09:06 EDT after Registration Completed at 09:01. See [Ch 10's "cdFMC auto-deploys the initial policy assignment" section](scc-managed.md#cdfmc-auto-deploys-the-initial-policy-assignment-retroactively-surfaced-by-the-notifications-pane) for the empirical timeline.
+
+**No traffic passes through the FTD after Deploy_Job_1** — the Default Access Control Policy pushed has `Default Action: Access Control: Block All Traffic` (see [Ch 10 → "CRITICAL: the deployed Default ACP blocks all through-traffic by default"](scc-managed.md#critical-the-deployed-default-acp-blocks-all-through-traffic-by-default)). Author at least one Allow rule and Deploy again before expecting traffic to flow.
+
+### "Failed to load the out-of-band configuration differential" on 1210CE
+
+Empirically observed on 2026-07-11 — click `Check Latest Status` next to `Out-of-band configuration status:` on cdFMC's Device Summary page:
+
+```
+Failed to load the out-of-band configuration differential
+Out of band change detection for break-fix changes are not supported for the device.
+```
+
+**This is expected behavior on the 1210CE.** Cisco has not enabled out-of-band change detection for this hardware family in FTD 7.6.4-69. Consequence: cdFMC will NOT flag changes made via direct SSH to the FTD as drift. See [Ch 10 → "1210CE-specific gotcha: out-of-band change detection is NOT supported"](scc-managed.md#1210ce-specific-gotcha-out-of-band-change-detection-is-not-supported) for the mitigation pattern.
+
+### `HTTP 400` on `/firewall/v1/*` endpoints from a Base-tier tenant API token
+
+An API token minted from SCC's `Platform Management → API Keys` page has product scope `Security Cloud Control` only (empirically the only option in that Product/Service dropdown on Base tier as of 2026-07-11). Calls to `https://api.<region>.security.cisco.com/firewall/v1/*` return HTTP 400 (not 401) with a gateway rewrite path in the response body:
+
+```
+{"path":"/api/platform/scc-gateway/request/api/rest/v1/token","status":400,"error":"Bad Request"}
+```
+
+**This is a scope mismatch, not a URL error or a token expiration.** The SCC gateway recognizes the token but refuses to route to the Firewall Manager backend. See [Ch 10 → Step 1](scc-managed.md#step-1-mint-the-api-token) for the exhaustive UI-path check that yielded no working alternative on Base tier. Reference-lab TAC case draft at [captures/ch10-tac-case-draft-2026-07-11.md](https://github.com/Batman4NY/firewall-1210ce-build-guide/blob/main/captures/ch10-tac-case-draft-2026-07-11.md) — outcome will resolve whether Base tier ever unlocks Firewall Manager API or whether that requires a paid tier upgrade.
 
 ## Duo login loop
 
