@@ -1,0 +1,18 @@
+Message type,Device name,Device type,Category,Body,Status,Started,Finished,Duration
+Deployments,fw1210ce,Devices,fw1210ce,Deployment to device successful.,success,2026-07-11 09:03:27 EDT,2026-07-11 09:06:50 EDT,3m 23s
+Health,1210ce-lab--ti0cqk,Devices,Process Status,hmdaemon exited 5 time(s).,warning
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Health Policy,Apply Initial_Health_Policy 2026-05-05 16:15:14 to fw1210ce Health Policy applied successfully,success,2026-07-11 09:03:28 EDT,2026-07-11 09:04:42 EDT,1m 14s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Discovery,fw1210ce - Discovery from the device is successful.,success,2026-07-11 09:01:19 EDT,2026-07-11 09:03:28 EDT,2m 9s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,SFTunnel,fw1210ce - SFTunnel connection established successfully.,success,2026-07-11 09:02:46 EDT,2026-07-11 09:02:46 EDT,0s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Register,Registration fw1210ce: Started device discovery,success,2026-07-11 08:58:03 EDT,2026-07-11 09:01:20 EDT,3m 17s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Register,Registration fw1210ce: Registration timed out. Please check connectivity and registration id,failure,2026-07-11 08:55:25 EDT,2026-07-11 08:57:31 EDT,2m 6s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,SRU Install,Snort Rule Update 2026 07 08 001 vrt Install Completed.,success,2026-07-11 08:40:50 EDT,2026-07-11 08:42:38 EDT,1m 48s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Lightweight Security Package (LSP) Install,lsp rel 20260708 1827 Install Completed.,success,2026-07-11 08:38:25 EDT,2026-07-11 08:40:43 EDT,2m 18s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Local Install,Installing Cisco Vulnerability And Fingerprint Database Updates version: VDB-433 Successfully Installed,success,2026-07-11 08:28:19 EDT,2026-07-11 08:33:43 EDT,5m 24s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Automatic Configuration Tasks,Task Status Following tasks failed: Backup. Please configure manually.;,success,2026-05-05 12:18:25 EDT,2026-07-11 08:28:21 EDT,1604h 9m 56s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Local Install,Installing Cisco Firepower GeoLocation Database Update version: GeoDB-2026-06-20-081 Successfully Installed,success,2026-07-11 08:14:01 EDT,2026-07-11 08:18:00 EDT,3m 59s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Health Policy Apply,Health policy apply to appliance 1210ce-lab--ti0cqk Health Policy applied successfully,success,2026-07-11 08:10:40 EDT,2026-07-11 08:15:05 EDT,4m 25s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Threat Upgrade,Threat post firstboot steps Done with Threat post steps,success,2026-05-05 12:18:06 EDT,2026-07-11 08:14:01 EDT,1603h 55m 55s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Device Configuration,Reapply audit configuration Done,success,2026-07-11 08:09:47 EDT,2026-07-11 08:13:13 EDT,3m 26s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,Lightweight Security Package (LSP) Install,lsp rel 20251124 2043 Install Completed.,success,2026-05-05 12:11:54 EDT,2026-05-05 12:13:51 EDT,1m 57s
+Tasks,1210ce-lab--ti0cqk,Firewall Management Center,SRU Install,Snort Rule Update 2024 12 02 001 vrt Install Completed.,success,2026-05-05 12:07:56 EDT,2026-05-05 12:11:49 EDT,3m 53s
